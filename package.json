@@ -1,0 +1,40 @@
+{
+  "name": "@tmigone/pulseaudio",
+  "version": "1.0.0",
+  "description": "A nodejs based PulseAudio client",
+  "main": "build/index.js",
+  "scripts": {
+    "test": "ava --verbose",
+    "watch": "tsc --watch --project tsconfig.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tmigone/pulseaudio.git"
+  },
+  "author": "Tomás Migone <tomasmigone@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "pulseaudio",
+    "pulse",
+    "audio"
+  ],
+  "bugs": {
+    "url": "https://github.com/tmigone/pulseaudio/issues"
+  },
+  "homepage": "https://github.com/tmigone/pulseaudio#readme",
+  "devDependencies": {
+    "@types/node": "^14.0.13",
+    "ava": "^3.8.2",
+    "nodemon": "^2.0.4",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.5"
+  },
+  "ava": {
+    "extensions": [
+      "ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ]
+  }
+}
