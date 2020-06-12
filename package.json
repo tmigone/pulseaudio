@@ -4,7 +4,7 @@
   "description": "A nodejs based PulseAudio client",
   "main": "build/index.js",
   "scripts": {
-    "test": "ava --verbose",
+    "test": "ava",
     "watch": "tsc --watch --project tsconfig.json"
   },
   "repository": {

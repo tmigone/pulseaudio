@@ -6,8 +6,9 @@ import {
   PATag,
   PATagType,
   PAU32,
-  PAArbitrary
- } from "./tag";
+  PAArbitrary,
+  PABoolean
+ } from "./tag"
 
 const PA_PACKET_HEADER = Buffer.from([
   0xFF, 0xFF, 0xFF, 0xFF,
@@ -36,32 +37,32 @@ export default class PAPacket {
   constructor(packet?: Buffer) {
     if (packet) {
       this.packet = Buffer.from(packet)
-      this.readPacket(this.packet)
+      this.read(this.packet)
     }
   }
-
-  // https://github.com/pulseaudio/pulseaudio/blob/master/src/pulsecore/tagstruct.h#L70
-  put_command(value: number): void {
+  
+  setCommand(value: number): void {
     this.command = new PAU32(value)
   }
 
-  put_request(value: number): void {
+  setRequest(value: number): void {
     this.request = new PAU32(value)
   }
 
-  putu32(value: number): void {
+  // https://github.com/pulseaudio/pulseaudio/blob/master/src/pulsecore/tagstruct.h#L70
+  putU32(value: number): void {
     this.tags.push(new PAU32(value))
   }
 
-  // put_boolean(value: boolean): void {
-  //   this.tags.push(new PA_Boolean(value))
-  // }
+  putBoolean(value: boolean): void {
+    this.tags.push(new PABoolean(value))
+  }
 
-  put_arbitrary(value: Buffer): void {
+  putArbitrary(value: Buffer): void {
     this.tags.push(new PAArbitrary(value))
   }
 
-  writePacket(): Buffer {
+  write(): Buffer {
     // Calculate tagsSize
     const allTags: PATag<any>[] = [this.command, this.request, ...this.tags]
     this.tagsSize = allTags.reduce((sum, tag): number => {
@@ -86,7 +87,7 @@ export default class PAPacket {
     return this.packet
   }
 
-  readPacket(buffer: Buffer): void {
+  read(buffer: Buffer): void {
     // TODO: assert buffer size/format
     // Sections: tagSize, header, 
     this.tagsSize = buffer.readUInt32BE(0)

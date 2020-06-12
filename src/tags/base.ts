@@ -20,6 +20,7 @@ export const enum PATagType {
   PA_TAG_PROPLIST = 'P',
   PA_TAG_VOLUME = 'V',
   PA_TAG_FORMAT_INFO = 'f',
+  PA_TAG_PROP = 'p' // Custom tag, this is not part of PulseAudio spec
 }
 
 // PulseAudio tag structure by section

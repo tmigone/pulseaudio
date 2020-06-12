@@ -8,8 +8,7 @@ export default class PABoolean extends PATag<boolean> {
   toTagBuffer(value: boolean): Buffer {
     const boolValue: PATagType = value ? PATagType.PA_TAG_BOOLEAN_TRUE : PATagType.PA_TAG_BOOLEAN_FALSE
     const buffer: Buffer = Buffer.allocUnsafe(1)
-    let offset: number = 0
-    offset = buffer.writeUInt8(boolValue.toString().charCodeAt(0), offset)
+    buffer.writeUInt8(boolValue.toString().charCodeAt(0))
     return buffer
   }
 
