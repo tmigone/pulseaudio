@@ -1,11 +1,15 @@
-import { PATag, PA_TAG_TYPES } from './tag'
-import PA_U32 from './u32'
-import PA_Arbitrary from './arbitrary'
+import { PATag, PATagType } from './tag'
+import PAU32 from './u32'
+import PAArbitrary from './arbitrary'
+import PABoolean from './boolean'
 
 
 export {
   PATag,
-  PA_TAG_TYPES as PA_TAGS,
-  PA_U32,
-  PA_Arbitrary
+  PATagType,
+  
+  // Types
+  PAArbitrary,
+  PABoolean,
+  PAU32
 }

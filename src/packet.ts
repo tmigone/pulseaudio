@@ -1,12 +1,12 @@
-// PulseAudio references
+// PulseAudio tagstruct
 // https://github.com/pulseaudio/pulseaudio/blob/master/src/pulsecore/tagstruct.h
 // https://github.com/pulseaudio/pulseaudio/blob/master/src/pulsecore/tagstruct.c
 
 import { 
   PATag,
-  PA_TAGS,
-  PA_U32,
-  PA_Arbitrary
+  PATagType,
+  PAU32,
+  PAArbitrary
  } from "./tags";
 
 const PA_PACKET_HEADER = Buffer.from([
@@ -29,8 +29,8 @@ export default class PAPacket {
   // Parsed packet sections
   tagsSize: number = 0
   header: Buffer = PA_PACKET_HEADER
-  command: PA_U32
-  request: PA_U32
+  command: PAU32
+  request: PAU32
   tags: PATag<any>[] = []
 
   constructor(packet?: Buffer) {
@@ -40,17 +40,17 @@ export default class PAPacket {
     }
   }
 
-  // Reference: https://github.com/pulseaudio/pulseaudio/blob/master/src/pulsecore/tagstruct.h#L70
+  // https://github.com/pulseaudio/pulseaudio/blob/master/src/pulsecore/tagstruct.h#L70
   put_command(value: number): void {
-    this.command = new PA_U32(value)
+    this.command = new PAU32(value)
   }
 
   put_request(value: number): void {
-    this.request = new PA_U32(value)
+    this.request = new PAU32(value)
   }
 
   putu32(value: number): void {
-    this.tags.push(new PA_U32(value))
+    this.tags.push(new PAU32(value))
   }
 
   // put_boolean(value: boolean): void {
@@ -58,7 +58,7 @@ export default class PAPacket {
   // }
 
   put_arbitrary(value: Buffer): void {
-    this.tags.push(new PA_Arbitrary(value))
+    this.tags.push(new PAArbitrary(value))
   }
 
   writePacket(): Buffer {
@@ -91,17 +91,17 @@ export default class PAPacket {
     // Sections: tagSize, header, 
     this.tagsSize = buffer.readUInt32BE(0)
     this.header = buffer.subarray(4, 20)
-    this.command = new PA_U32(buffer.readUInt32BE(21))
-    this.request = new PA_U32(buffer.readUInt32BE(26))
+    this.command = new PAU32(buffer.readUInt32BE(21))
+    this.request = new PAU32(buffer.readUInt32BE(26))
 
     // Sections: tags
     const tagsBuffer: Buffer = buffer.subarray(30)
 
     let offset: number = 0
     while (offset < tagsBuffer.length) {
-      const tagType: PA_TAGS = tagsBuffer.readUInt8(offset)
-      if (tagType === PA_TAGS.PA_TAG_U32.toString().charCodeAt(0)) {
-        const tag: PA_U32 = new PA_U32(tagsBuffer.subarray(offset, 5))
+      const tagType: PATagType = tagsBuffer.readUInt8(offset)
+      if (tagType === PATagType.PA_TAG_U32.toString().charCodeAt(0)) {
+        const tag: PAU32 = new PAU32(tagsBuffer.subarray(offset, 5))
         this.tags.push(tag)
         offset += tag.size
       }

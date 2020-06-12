@@ -1,6 +1,6 @@
 // Valid PulseAudio type tags
 // See https://github.com/pulseaudio/pulseaudio/blob/master/src/pulsecore/tagstruct.h#L41
-export const enum PA_TAG_TYPES {
+export const enum PATagType {
   PA_TAG_INVALID = 0,
   PA_TAG_STRING = 't',
   PA_TAG_STRING_NULL = 'N',
@@ -31,7 +31,7 @@ export abstract class PATag<T> {
   size: number
 
   // Parsed sections
-  type: PA_TAG_TYPES
+  type: PATagType
   value: T
 
   // toBuffer: write a value into a PulseAudio tag buffer
@@ -57,24 +57,3 @@ export abstract class PATag<T> {
   }
 
 }
-
-// class PA_Boolean implements PATag {
-//   constructor(
-//     public value: boolean,
-//     public type: PA_TAGS = PA_TAGS.PA_TAG_BOOLEAN,
-//     public size: number = 0,
-//     public buffer: Buffer = null
-//   ) {
-//     this.size = 1
-//     this.buffer = Buffer.allocUnsafe(this.size)
-//     this.put()
-//   }
-
-//   put(): number {
-//     this.type = this.value ? PA_TAGS.PA_TAG_BOOLEAN_TRUE : PA_TAGS.PA_TAG_BOOLEAN_FALSE
-//     let offset: number = 0
-//     offset = this.buffer.writeUInt8(this.type.toString().charCodeAt(0), offset)
-//     return offset
-//   }
-
-// }

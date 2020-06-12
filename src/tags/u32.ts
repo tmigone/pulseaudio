@@ -1,12 +1,15 @@
-import { PATag, PA_TAG_TYPES } from './tag'
+import { PATag, PATagType } from './tag'
 
-export default class PA_U32 extends PATag<number> {
-  type: PA_TAG_TYPES = PA_TAG_TYPES.PA_TAG_U32
+// PulseAudio u32 tag structure by section
+// - 1 byte: tag type
+// - 4 bytes: value
+export default class PAU32 extends PATag<number> {
+  type: PATagType = PATagType.PA_TAG_U32
 
   toTagBuffer(value: number): Buffer {
     const buffer: Buffer = Buffer.allocUnsafe(5)
     let offset: number = 0
-    offset = buffer.writeUInt8(PA_TAG_TYPES.PA_TAG_U32.toString().charCodeAt(0), offset)
+    offset = buffer.writeUInt8(PATagType.PA_TAG_U32.toString().charCodeAt(0), offset)
     offset = buffer.writeUInt32BE(value, offset)
     return buffer
   }
@@ -18,6 +21,6 @@ export default class PA_U32 extends PATag<number> {
 
   /* @ts-ignore */
   isTagBuffer(buffer: Buffer): boolean {
-    return true
+    return true 
   }
 }
