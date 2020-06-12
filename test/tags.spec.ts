@@ -1,5 +1,5 @@
 import test from 'ava'
-import { PATag, PATagType, PAU32, PAArbitrary, PABoolean } from "../src/tags"
+import { PATag, PATagType, PAU32, PAArbitrary, PABoolean } from "../src/tag"
 
 interface PATagTestCases<T> {
   title: string

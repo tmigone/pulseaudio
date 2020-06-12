@@ -7,7 +7,7 @@ import {
   PATagType,
   PAU32,
   PAArbitrary
- } from "./tags";
+ } from "./tag";
 
 const PA_PACKET_HEADER = Buffer.from([
   0xFF, 0xFF, 0xFF, 0xFF,

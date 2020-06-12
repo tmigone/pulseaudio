@@ -1,4 +1,4 @@
-import { PATag, PATagType } from './tag'
+import { PATag, PATagType } from './base'
 
 // PulseAudio Arbitrary tag structure by section
 // - 1 byte: tag type
