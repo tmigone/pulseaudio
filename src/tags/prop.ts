@@ -1,7 +1,9 @@
-import { PATag, PATagType } from './base'
+import { PATag, PATagType } from './common'
 import PAArbitrary from './arbitrary'
 import PAU32 from './u32'
 import PAString from './string'
+
+const PA_PROP_BASE_SIZE = 7
 
 // PulseAudio property tag structure by section
 // - 1 byte: tag type
@@ -32,7 +34,21 @@ export default class PAProp extends PATag<[string, string]> {
   }
 
   fromTagBuffer(buffer: Buffer): [string, string] {
-    // TODO: Validate buffer
+    const [propName, propValue] = this.parseTag(buffer)
+    return [propName.value, propValue.value.subarray(0, propValue.value.length - 1).toString('utf8')]
+  }
+
+  sanitizeBuffer(buffer: Buffer): Buffer {
+    const [propName, propValue] = this.parseTag(buffer)
+    return buffer.subarray(0, PA_PROP_BASE_SIZE + propName.size + propValue.size)
+  }
+
+  isValidBuffer(buffer: Buffer): boolean {
+    const tagType: PATagType = buffer.readUInt8(0)
+    return tagType === this.type
+  }
+
+  parseTag(buffer: Buffer): [PAString, PAArbitrary] {
     let offset: number = 0
 
     // Loop until we find '004c' which is the string terminator + u32 tag
@@ -44,7 +60,7 @@ export default class PAProp extends PATag<[string, string]> {
     const propName: PAString = new PAString(buffer.subarray(0, offset + 1))
     const propValue: PAArbitrary = new PAArbitrary(buffer.subarray(offset + 1 + 5))
 
-    return [propName.value, propValue.value.subarray(0, propValue.value.length - 1).toString('utf8')]
+    return [propName, propValue]
   }
 
   /* @ts-ignore */

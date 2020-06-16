@@ -1,4 +1,4 @@
-// Valid PulseAudio type tags
+// PulseAudio tag types
 // See https://github.com/pulseaudio/pulseaudio/blob/master/src/pulsecore/tagstruct.h#L41
 export const enum PATagType {
   PA_TAG_INVALID = 0,
@@ -39,15 +39,28 @@ export abstract class PATag<T> {
   abstract toTagBuffer(value: T): Buffer
 
   // fromBuffer: parse a value from a PulseAudio tag buffer
+  // Asumes that the provided buffer is valid and has the correct size
   abstract fromTagBuffer(buffer: Buffer): T
 
+  // isValidBuffer: tests if a buffer is valid
+  abstract isValidBuffer(buffer: Buffer): boolean
+
+  // sanitizeBuffer: returns a sanitized buffer
+  // if original size is correct then returns buffer as is
+  // if original size is bigger then returns a resized buffer
+  abstract sanitizeBuffer(buffer: Buffer): Buffer
+  
   // isTagBuffer: check if buffer is a tag buffer
   abstract isTagBuffer(buffer: Buffer): boolean
-
+  
   constructor(init: T | Buffer) {
     if (init instanceof Buffer && this.isTagBuffer(init)) {
-      this.tag = Buffer.from(init)
-      this.value = this.fromTagBuffer(this.tag)
+      // if (this.isValidBuffer(init)) {
+        this.tag = Buffer.from(this.sanitizeBuffer(init))
+        this.value = this.fromTagBuffer(this.tag)
+      // } else {
+        // throw new Error(`Error parsing buffer. Incorrect tag type!`)
+      // }
     }
     else {
       this.value = init as T
@@ -56,5 +69,4 @@ export abstract class PATag<T> {
 
     this.size = this.tag.length
   }
-
 }

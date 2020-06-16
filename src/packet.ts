@@ -2,20 +2,38 @@
 // https://github.com/pulseaudio/pulseaudio/blob/master/src/pulsecore/tagstruct.h
 // https://github.com/pulseaudio/pulseaudio/blob/master/src/pulsecore/tagstruct.c
 
-import { 
+import {
   PATag,
   PATagType,
   PAU32,
   PAArbitrary,
-  PABoolean
- } from "./tag"
+  PABoolean,
+  PAString,
+  PAProp,
+  PAPropList
+} from './tag'
 
-const PA_PACKET_HEADER = Buffer.from([
+export const PA_PACKET_HEADER: Buffer = Buffer.from([
   0xFF, 0xFF, 0xFF, 0xFF,
   0x00, 0x00, 0x00, 0x00,
   0x00, 0x00, 0x00, 0x00,
   0x00, 0x00, 0x00, 0x00
 ])
+
+const enum SectionLength {
+  SIZE = 4,
+  HEADER = 16,
+  COMMAND = 5,
+  REQUEST = 5
+}
+const enum SectionIndex {
+  SIZE = 0,
+  HEADER = 4,
+  HEADER_END = 20,
+  COMMAND = 21,
+  REQUEST = 26,
+  TAGS = 30
+}
 
 // PulseAudio Packet structure by section
 // - 4 bytes: Size of the TAGS section in bytes
@@ -31,7 +49,7 @@ export default class PAPacket {
   tagsSize: number = 0
   header: Buffer = PA_PACKET_HEADER
   command: PAU32
-  request: PAU32
+  requestId: PAU32
   tags: PATag<any>[] = []
 
   constructor(packet?: Buffer) {
@@ -40,38 +58,17 @@ export default class PAPacket {
       this.read(this.packet)
     }
   }
-  
-  setCommand(value: number): void {
-    this.command = new PAU32(value)
-  }
-
-  setRequest(value: number): void {
-    this.request = new PAU32(value)
-  }
-
-  // https://github.com/pulseaudio/pulseaudio/blob/master/src/pulsecore/tagstruct.h#L70
-  putU32(value: number): void {
-    this.tags.push(new PAU32(value))
-  }
-
-  putBoolean(value: boolean): void {
-    this.tags.push(new PABoolean(value))
-  }
-
-  putArbitrary(value: Buffer): void {
-    this.tags.push(new PAArbitrary(value))
-  }
 
   write(): Buffer {
     // Calculate tagsSize
-    const allTags: PATag<any>[] = [this.command, this.request, ...this.tags]
+    const allTags: PATag<any>[] = [this.command, this.requestId, ...this.tags]
     this.tagsSize = allTags.reduce((sum, tag): number => {
       sum += tag.size
       return sum
     }, 0)
 
     // Create packet buffer
-    this.packet = Buffer.allocUnsafe(4 + PA_PACKET_HEADER.length + this.tagsSize)
+    this.packet = Buffer.allocUnsafe(SectionLength.SIZE + SectionLength.HEADER + this.tagsSize)
 
     // Sections: tagsSize and header
     let offset: number = 0
@@ -89,24 +86,97 @@ export default class PAPacket {
 
   read(buffer: Buffer): void {
     // TODO: assert buffer size/format
-    // Sections: tagSize, header, 
-    this.tagsSize = buffer.readUInt32BE(0)
-    this.header = buffer.subarray(4, 20)
-    this.command = new PAU32(buffer.readUInt32BE(21))
-    this.request = new PAU32(buffer.readUInt32BE(26))
+    // Sections: tagSize, header,
+    if (!PAPacket.isValidPacket(buffer)) {
+      throw new Error(`Packet is not valid.`)
+    }
+    
+    try {
+      this.tagsSize = buffer.readUInt32BE(SectionIndex.SIZE)
+      this.header = buffer.subarray(SectionIndex.HEADER, SectionIndex.HEADER_END)
+      this.command = new PAU32(buffer.readUInt32BE(SectionIndex.COMMAND))
+      this.requestId = new PAU32(buffer.readUInt32BE(SectionIndex.REQUEST))
 
-    // Sections: tags
-    const tagsBuffer: Buffer = buffer.subarray(30)
+      // Sections: tags
+      const tagsBuffer: Buffer = buffer.subarray(SectionIndex.TAGS)
 
-    let offset: number = 0
-    while (offset < tagsBuffer.length) {
-      const tagType: PATagType = tagsBuffer.readUInt8(offset)
-      if (tagType === PATagType.PA_TAG_U32.toString().charCodeAt(0)) {
-        const tag: PAU32 = new PAU32(tagsBuffer.subarray(offset, 5))
-        this.tags.push(tag)
-        offset += tag.size
+      let offset: number = 0
+      let tag: PATag<any>
+      while (offset < tagsBuffer.length) {
+        const tagType: PATagType = tagsBuffer.readUInt8(offset)
+        switch (tagType) {
+          case PATagType.PA_TAG_U32.toString().charCodeAt(0):
+            tag = new PAU32(tagsBuffer.subarray(offset, 5))  // TODO: subarray?
+            this.tags.push(tag)
+            offset += tag.size
+            break;
+          case PATagType.PA_TAG_ARBITRARY.toString().charCodeAt(0):
+            tag = new PAArbitrary(tagsBuffer.subarray(offset, 5))  // TODO: subarray?
+            this.tags.push(tag)
+            offset += tag.size
+            break;
+          default:
+            throw new Error(`Tag type: ${tagType} not supported. Please report issue.`)
+        }
       }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  // Test wether a chunk is valid as a PA Packet start
+  // Returns true even if the chunk is incomplete (chunk size < SectionLength.SIZE + SectionLength.HEADER + dataLength)
+  static isChunkHeader(chunk: Buffer): boolean {
+    if (chunk.length < SectionLength.SIZE + SectionLength.HEADER) {
+      return false
     }
 
+    const header: Buffer = chunk.subarray(SectionIndex.HEADER, SectionIndex.HEADER_END)
+    return Buffer.compare(header, PA_PACKET_HEADER) === 0
+  }
+
+  // Test wether a series of chunks can construct a valid PA Packet
+  static isValidPacket(chunks: Buffer | Buffer[]): boolean {
+    if (chunks instanceof Buffer) {
+      chunks = [chunks]
+    }
+    let chunksSize: number = chunks.reduce((sum, chunk) => { return sum += chunk.length }, 0)
+    let dataLength: number = chunks[0].readUInt32BE(0)
+
+    return this.isChunkHeader(chunks[0]) && chunksSize === SectionLength.SIZE + SectionLength.HEADER + dataLength
+  }
+
+  setCommand(value: number): void {
+    this.command = new PAU32(value)
+  }
+
+  setRequestId(value: number): void {
+    this.requestId = new PAU32(value)
+  }
+
+  // Put methods
+  // https://github.com/pulseaudio/pulseaudio/blob/master/src/pulsecore/tagstruct.h#L70
+  putU32(value: number): void {
+    this.tags.push(new PAU32(value))
+  }
+
+  putBoolean(value: boolean): void {
+    this.tags.push(new PABoolean(value))
+  }
+
+  putArbitrary(value: Buffer): void {
+    this.tags.push(new PAArbitrary(value))
+  }
+
+  putString(value: string): void {
+    this.tags.push(new PAString(value))
+  }
+
+  putProp(value: [string, string]): void {
+    this.tags.push(new PAProp(value))
+  }
+
+  putPropList(value: [string, string][]): void {
+    this.tags.push(new PAPropList(value))
   }
 }

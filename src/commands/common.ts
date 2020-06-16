@@ -1,9 +1,6 @@
 // PulseAudio commands
 // See https://github.com/pulseaudio/pulseaudio/blob/master/src/pulsecore/native-common.h
 
-import PAPacket from "./packet"
-import { PA_PROTOCOL_VERSION } from "./protocol"
-
 export const enum PACommandType {
   /* Generic commands */
   PA_COMMAND_ERROR,
@@ -162,20 +159,4 @@ export const enum PACommandType {
   PA_COMMAND_REGISTER_MEMFD_SHMID,
 
   PA_COMMAND_MAX
-}
-
-export const auth = (requestId: number, cookie: Buffer): Buffer => {
-  let packet: PAPacket = new PAPacket()
-  packet.setCommand(PACommandType.PA_COMMAND_AUTH)
-  packet.setRequest(requestId)
-  packet.putU32(PA_PROTOCOL_VERSION)
-  packet.putArbitrary(cookie)
-  return packet.write()
-}
-
-export const setClientName = (requestId: number, clientName: string): Buffer => {
-  let packet: PAPacket = new PAPacket()
-  packet.setCommand(PACommandType.PA_COMMAND_SET_CLIENT_NAME)
-  packet.setRequest(requestId)
-  return packet.write()
 }

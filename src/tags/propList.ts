@@ -1,6 +1,7 @@
-import { PATag, PATagType } from './base'
-import { PAProp } from '../tag'
+import { PATag, PATagType } from './common'
+import PAProp from './prop'
 
+const PA_PROP_LIST_BASE_SIZE = 2
 // PulseAudio proplist tag structure by section
 // - 1 byte: tag type
 // - X bytes: [props]
@@ -21,16 +22,32 @@ export default class PAPropList extends PATag<[string, string][]> {
 
   fromTagBuffer(buffer: Buffer): [string, string][] {
     // TODO: Validate buffer
-    const values: [string, string][] = []
+    const values: PAProp[] = this.parseTag(buffer)
+    return values.map(v => v.value)
+  }
 
+  sanitizeBuffer(buffer: Buffer): Buffer {
+    const values: PAProp[] = this.parseTag(buffer)
+    let propsSize: number = 0
+    for (const val of values) {
+      propsSize += val.size
+    }
+    return buffer.subarray(0, PA_PROP_LIST_BASE_SIZE + propsSize)
+  }
+
+  isValidBuffer(buffer: Buffer): boolean {
+    const tagType: PATagType = buffer.readUInt8(0)
+    return tagType === this.type
+  }
+
+  parseTag(buffer: Buffer): PAProp[] {
     // Split properties by '0074', null terminator on arbitrary + next string tag.
     // TODO: find a better way of doing this
+    const props: PAProp[] = []
     const bufferOnlyProps: Buffer = buffer.subarray(1, buffer.length - 1)
     const parts: string[] = bufferOnlyProps.toString('hex').replace('0074', '00|74').split('|')
-
-    parts.map(p => values.push(new PAProp(Buffer.from(p, 'hex')).value))
-
-    return values
+    parts.map(p => props.push(new PAProp(Buffer.from(p, 'hex'))))
+    return props
   }
 
   /* @ts-ignore */
