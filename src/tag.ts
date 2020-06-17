@@ -5,6 +5,10 @@ import PABoolean from './tags/boolean'
 import PAString from './tags/string'
 import PAProp from './tags/prop'
 import PAPropList from './tags/propList'
+import PASampleSpec from './tags/sampleSpec'
+import PAChannelMap from './tags/channelMap'
+import PAChannelVolume from './tags/channelVolume'
+import PAUsec from './tags/usec'
 
 export { PATag, PATagType }
 
@@ -15,5 +19,9 @@ export {
   PAU32,
   PAString,
   PAProp,
-  PAPropList
+  PAPropList,
+  PASampleSpec,
+  PAChannelMap,
+  PAChannelVolume,
+  PAUsec
 }

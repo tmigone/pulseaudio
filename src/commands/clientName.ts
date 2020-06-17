@@ -8,3 +8,9 @@ export const setClientName = (requestId: number, clientName: string = 'palib-cli
   packet.putPropList([['application.name', clientName]])
   return packet
 }
+
+export const setClientNameReply = (packet: PAPacket): object => {
+  return {
+    clientIndex: packet.tags[0].value
+  }
+}

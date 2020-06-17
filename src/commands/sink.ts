@@ -7,3 +7,10 @@ export const getSinks = (requestId: number) => {
   packet.setRequestId(requestId)
   return packet
 }
+export const getSinksReply = (packet: PAPacket): object => {
+  console.log(packet.packet.toString('hex'));
+  console.log(packet);
+  
+  
+  return {}
+}

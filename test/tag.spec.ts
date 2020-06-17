@@ -1,5 +1,5 @@
 import test from 'ava'
-import { PATag, PATagType, PAU32, PABoolean, PAString, PAArbitrary, PAProp, PAPropList } from '../src/tag'
+import { PATag, PATagType, PAU32, PABoolean, PAString, PAArbitrary, PAProp, PAPropList, PAChannelMap, PASampleSpec, PAChannelVolume, PAUsec } from '../src/tag'
 
 interface PATagTestCases<T> {
   title: string
@@ -12,6 +12,9 @@ interface PATagTestCases<T> {
   }
 }
 
+// TODO: 
+// Refactor this mess
+// Add tests with buffers bigger/smaller than expected
 const cases: PATagTestCases<any>[] = [
   {
     title: 'Create u32 from value',
@@ -141,6 +144,86 @@ const cases: PATagTestCases<any>[] = [
       size: 100,
       type: PATagType.PA_TAG_PROPLIST,
       value: [['application.name', 'pulse-audio-sinks.js'], ['application.name', 'pulse-audio-sinks.js']]
+    }
+  },
+  {
+    title: 'Create sampleSpec from values',
+    pa_tag: new PASampleSpec({ format: 3, channels: 2, rate: 44100 }),
+    expected: {
+      tag: Buffer.from('6103020000ac44', 'hex'),
+      size: 7,
+      type: PATagType.PA_TAG_SAMPLE_SPEC,
+      value: { format: 3, channels: 2, rate: 44100 }
+    }
+  },
+  {
+    title: 'Create sampleSpec from buffer',
+    pa_tag: new PASampleSpec(Buffer.from('6103020000ac44', 'hex')),
+    expected: {
+      tag: Buffer.from('6103020000ac44', 'hex'),
+      size: 7,
+      type: PATagType.PA_TAG_SAMPLE_SPEC,
+      value: { format: 3, channels: 2, rate: 44100 }
+    }
+  },
+  {
+    title: 'Create channelMap from values',
+    pa_tag: new PAChannelMap({ channels: 2, types: [1, 2] }),
+    expected: {
+      tag: Buffer.from('6d020102', 'hex'),
+      size: 4,
+      type: PATagType.PA_TAG_CHANNEL_MAP,
+      value: { channels: 2, types: [1, 2] }
+    }
+  },
+  {
+    title: 'Create channelMap from buffer',
+    pa_tag: new PAChannelMap(Buffer.from('6d020102', 'hex')),
+    expected: {
+      tag: Buffer.from('6d020102', 'hex'),
+      size: 4,
+      type: PATagType.PA_TAG_CHANNEL_MAP,
+      value: { channels: 2, types: [1, 2] }
+    }
+  },
+  {
+    title: 'Create channelVolume from values',
+    pa_tag: new PAChannelVolume({ channels: 2, volumes: [65536, 65536] }),
+    expected: {
+      tag: Buffer.from('76020001000000010000', 'hex'),
+      size: 10,
+      type: PATagType.PA_TAG_CVOLUME,
+      value: { channels: 2, volumes: [65536, 65536] }
+    }
+  },
+  {
+    title: 'Create channelVolume from buffer',
+    pa_tag: new PAChannelVolume(Buffer.from('76020001000000010000', 'hex')),
+    expected: {
+      tag: Buffer.from('76020001000000010000', 'hex'),
+      size: 10,
+      type: PATagType.PA_TAG_CVOLUME,
+      value: { channels: 2, volumes: [65536, 65536] }
+    }
+  },
+  {
+    title: 'Create usec from values',
+    pa_tag: new PAUsec(BigInt("0x1234123456785678")),
+    expected: {
+      tag: Buffer.from('551234123456785678', 'hex'),
+      size: 9,
+      type: PATagType.PA_TAG_USEC,
+      value: BigInt("0x1234123456785678")
+    }
+  },
+  {
+    title: 'Create usec from buffer',
+    pa_tag: new PAUsec(Buffer.from('551234123456785678', 'hex')),
+    expected: {
+      tag: Buffer.from('551234123456785678', 'hex'),
+      size: 9,
+      type: PATagType.PA_TAG_USEC,
+      value: BigInt("0x1234123456785678")
     }
   },
 ]

@@ -1,11 +1,18 @@
 import { EventEmitter } from 'events'
 import { Socket } from 'net'
-import { authenticate, authenticateReply, PACommandType } from './command'
 import PAPacket from './packet'
 import PARequest, { PAResponse } from './request'
 import { PATag } from './tag'
 import { PA_PROTOCOL_VERSION, PA_MAX_REQUEST_ID } from './protocol'
-import { setClientName } from './commands/clientName'
+import {
+  PACommandType,
+  authenticate,
+  authenticateReply,
+  setClientName,
+  setClientNameReply,
+  getSinks,
+  getSinksReply
+} from './command'
 
 interface TCPSocket {
   port: number
@@ -27,6 +34,7 @@ export default class PAClient extends EventEmitter {
     this.parseAddress(address)
   }
 
+  // Client APIs
   connect(): Promise<PAResponse> {
     return new Promise<PAResponse>((resolve, reject) => {
       this.socket = new Socket()
@@ -57,6 +65,12 @@ export default class PAClient extends EventEmitter {
     return this.sendRequest(query)
   }
 
+  getSinks(): Promise<PAResponse> {
+    const query: PAPacket = getSinks(this.requestId())
+    return this.sendRequest(query)
+  }
+
+  // Private methods
   private onReadable(): void {
     // Don't read if we don't have at least 10 bytes
     if (this.socket.readableLength < 10) {
@@ -83,7 +97,8 @@ export default class PAClient extends EventEmitter {
   }
 
   private requestId(): number {
-    return this.lastRequestId = this.lastRequestId++ & PA_MAX_REQUEST_ID
+    this.lastRequestId = (this.lastRequestId + 1) & PA_MAX_REQUEST_ID
+    return this.lastRequestId
   }
 
   private async sendRequest(query: PAPacket): Promise<PAResponse> {
@@ -111,12 +126,19 @@ export default class PAClient extends EventEmitter {
 
   private parseReply(reply: PAPacket, query: PATag<any>): any {
     let retObj: object = {}
+
     switch (query.value) {
       case PACommandType.PA_COMMAND_AUTH:
         retObj = authenticateReply(reply)
         break
+      case PACommandType.PA_COMMAND_SET_CLIENT_NAME:
+        retObj = setClientNameReply(reply)
+        break
+      case PACommandType.PA_COMMAND_GET_SINK_INFO_LIST:
+        retObj = getSinksReply(reply)
+        break
       default:
-        console.log('wat')
+        throw new Error(`Command ${query.value} not supported. Please report issue.`)
     }
     return retObj
   }

@@ -50,7 +50,7 @@ export default class PAString extends PATag<string> {
       while (buffer.readUInt8(offset) !== 0x00) {
         offset += 1
       }
-      return buffer.subarray(0, PA_STRING_BASE_SIZE + offset)
+      return buffer.subarray(0, offset + 1)
     }
   }
 

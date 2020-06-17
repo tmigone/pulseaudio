@@ -10,7 +10,11 @@ import {
   PABoolean,
   PAString,
   PAProp,
-  PAPropList
+  PAPropList,
+  PASampleSpec,
+  PAChannelMap,
+  PAChannelVolume,
+  PAUsec
 } from './tag'
 
 export const PA_PACKET_HEADER: Buffer = Buffer.from([
@@ -110,6 +114,30 @@ export default class PAPacket {
             break;
           case PATagType.PA_TAG_ARBITRARY.toString().charCodeAt(0):
             tag = new PAArbitrary(tagsBuffer.subarray(offset))
+            break;
+          case PATagType.PA_TAG_STRING.toString().charCodeAt(0):
+          case PATagType.PA_TAG_STRING_NULL.toString().charCodeAt(0):
+            tag = new PAString(tagsBuffer.subarray(offset))
+            break;
+          case PATagType.PA_TAG_BOOLEAN.toString().charCodeAt(0):
+          case PATagType.PA_TAG_BOOLEAN_FALSE.toString().charCodeAt(0):
+          case PATagType.PA_TAG_BOOLEAN_TRUE.toString().charCodeAt(0):
+            tag = new PABoolean(tagsBuffer.subarray(offset))
+            break;
+          case PATagType.PA_TAG_PROPLIST.toString().charCodeAt(0):
+            tag = new PAPropList(tagsBuffer.subarray(offset))
+            break;
+          case PATagType.PA_TAG_SAMPLE_SPEC.toString().charCodeAt(0):
+            tag = new PASampleSpec(tagsBuffer.subarray(offset))
+            break;
+          case PATagType.PA_TAG_CHANNEL_MAP.toString().charCodeAt(0):
+            tag = new PAChannelMap(tagsBuffer.subarray(offset))
+            break;
+          case PATagType.PA_TAG_CVOLUME.toString().charCodeAt(0):
+            tag = new PAChannelVolume(tagsBuffer.subarray(offset))
+            break;
+          case PATagType.PA_TAG_USEC.toString().charCodeAt(0):
+            tag = new PAUsec(tagsBuffer.subarray(offset))
             break;
           default:
             throw new Error(`Tag type: ${tagType} not supported. Please report issue.`)
