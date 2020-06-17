@@ -9,6 +9,8 @@ import PASampleSpec from './tags/sampleSpec'
 import PAChannelMap from './tags/channelMap'
 import PAChannelVolume from './tags/channelVolume'
 import PAUsec from './tags/usec'
+import PAVolume from './tags/volume'
+import PAFormat from './tags/format'
 
 export { PATag, PATagType }
 
@@ -23,5 +25,7 @@ export {
   PASampleSpec,
   PAChannelMap,
   PAChannelVolume,
-  PAUsec
+  PAUsec,
+  PAVolume,
+  PAFormat
 }

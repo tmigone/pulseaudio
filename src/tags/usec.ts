@@ -12,7 +12,6 @@ export default class PAUsec extends PATag<bigint> {
     const buffer: Buffer = Buffer.allocUnsafe(PA_USEC_SIZE)
     let offset: number = 0
     offset = buffer.writeUInt8(PATagType.PA_TAG_USEC.toString().charCodeAt(0), offset)
-
     offset = buffer.writeBigUInt64BE(value, offset)
     return buffer
   }

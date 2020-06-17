@@ -39,11 +39,24 @@ export default class PAPropList extends PATag<[string, string][]> {
   }
 
   parseTag(buffer: Buffer): PAProp[] {
+    // Find proplist end
+    // Loop until we find '4e' which is the string terminator
+    // Once we find it, offset + 1 is where prop list ends
+    let end: number = 0
+    while (buffer.readUInt8(end) !== PATagType.PA_TAG_STRING_NULL.toString().charCodeAt(0)) {
+      end += 1
+    }
+
+    // Check if proplist is empty
+    if (buffer.subarray(0, 2).toString('hex') === '504e') {
+      return []
+    }
+
     // Split properties by '0074', null terminator on arbitrary + next string tag.
     // TODO: find a better way of doing this
     const props: PAProp[] = []
-    const bufferOnlyProps: Buffer = buffer.subarray(1, buffer.length - 1)
-    const parts: string[] = bufferOnlyProps.toString('hex').replace('0074', '00|74').split('|')
+    const bufferOnlyProps: Buffer = buffer.subarray(1, end)
+    const parts: string[] = bufferOnlyProps.toString('hex').replace(/0074/g, '00|74').split('|')
     parts.map(p => props.push(new PAProp(Buffer.from(p, 'hex'))))
     return props
   }

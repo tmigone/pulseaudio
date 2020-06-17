@@ -8,6 +8,8 @@ async function main() {
   console.log(await client.getSinks())
 }
 main()
+
+
 // import { Socket } from 'net'
 // import PAPacket from './packet'
 // import { auth, setClientName, getSinks } from './commands'

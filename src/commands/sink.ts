@@ -8,9 +8,31 @@ export const getSinks = (requestId: number) => {
   return packet
 }
 export const getSinksReply = (packet: PAPacket): object => {
-  console.log(packet.packet.toString('hex'));
-  console.log(packet);
-  
-  
-  return {}
+  const propNames: string[] = [
+    'index',
+    'name',
+    'description',
+    'sampleSpec',
+    'channelMap',
+    'moduleIndex',
+    'channelVolumes',
+    'isMuted',
+    'monitorSourceIndex',
+    'monitorSourceName',
+    'latency',
+    'driverName',
+    'flagsRaw',
+    'properties',
+    'configLatency',
+    'baseVolume',
+    'state',
+    'volumeSteps',
+    'cardIndex',
+    'ports',
+    'activePortName',
+    'formats'
+  ]
+  const propValues: any[] = packet.tags.map(t => t.value)
+  const propArray: [string, any][] = propNames.map((p, i) => [p, propValues[i]])
+  return Object.fromEntries(propArray)
 }

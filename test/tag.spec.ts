@@ -1,5 +1,5 @@
 import test from 'ava'
-import { PATag, PATagType, PAU32, PABoolean, PAString, PAArbitrary, PAProp, PAPropList, PAChannelMap, PASampleSpec, PAChannelVolume, PAUsec } from '../src/tag'
+import { PATag, PATagType, PAU32, PABoolean, PAString, PAArbitrary, PAProp, PAPropList, PAChannelMap, PASampleSpec, PAChannelVolume, PAUsec, PAVolume, PAFormat } from '../src/tag'
 
 interface PATagTestCases<T> {
   title: string
@@ -147,6 +147,26 @@ const cases: PATagTestCases<any>[] = [
     }
   },
   {
+    title: 'Create empty list of props from values',
+    pa_tag: new PAPropList([]),
+    expected: {
+      tag: Buffer.from('504e', 'hex'),
+      size: 2,
+      type: PATagType.PA_TAG_PROPLIST,
+      value: []
+    }
+  },
+  {
+    title: 'Create empty list of props from buffer',
+    pa_tag: new PAPropList(Buffer.from('504e', 'hex')),
+    expected: {
+      tag: Buffer.from('504e', 'hex'),
+      size: 2,
+      type: PATagType.PA_TAG_PROPLIST,
+      value: []
+    }
+  },
+  {
     title: 'Create sampleSpec from values',
     pa_tag: new PASampleSpec({ format: 3, channels: 2, rate: 44100 }),
     expected: {
@@ -224,6 +244,46 @@ const cases: PATagTestCases<any>[] = [
       size: 9,
       type: PATagType.PA_TAG_USEC,
       value: BigInt("0x1234123456785678")
+    }
+  },
+  {
+    title: 'Create volume from values',
+    pa_tag: new PAVolume(65536),
+    expected: {
+      tag: Buffer.from('5600010000', 'hex'),
+      size: 5,
+      type: PATagType.PA_TAG_VOLUME,
+      value: 65536
+    }
+  },
+  {
+    title: 'Create volume from buffer',
+    pa_tag: new PAVolume(Buffer.from('5600010000', 'hex')),
+    expected: {
+      tag: Buffer.from('5600010000', 'hex'),
+      size: 5,
+      type: PATagType.PA_TAG_VOLUME,
+      value: 65536
+    }
+  },
+  {
+    title: 'Create format from values',
+    pa_tag: new PAFormat([{ encoding: 1, properties: [] }]),
+    expected: {
+      tag: Buffer.from('4201664201504e', 'hex'),
+      size: 7,
+      type: PATagType.PA_TAG_U8,
+      value: [{ encoding: 1, properties: [] }]
+    }
+  },
+  {
+    title: 'Create format from buffer',
+    pa_tag: new PAFormat(Buffer.from('4201664201504e', 'hex')),
+    expected: {
+      tag: Buffer.from('4201664201504e', 'hex'),
+      size: 7,
+      type: PATagType.PA_TAG_U8,
+      value: [{ encoding: 1, properties: [] }]
     }
   },
 ]

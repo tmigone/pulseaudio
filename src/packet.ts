@@ -14,7 +14,9 @@ import {
   PASampleSpec,
   PAChannelMap,
   PAChannelVolume,
-  PAUsec
+  PAUsec,
+  PAVolume,
+  PAFormat
 } from './tag'
 
 export const PA_PACKET_HEADER: Buffer = Buffer.from([
@@ -138,6 +140,12 @@ export default class PAPacket {
             break;
           case PATagType.PA_TAG_USEC.toString().charCodeAt(0):
             tag = new PAUsec(tagsBuffer.subarray(offset))
+            break;
+          case PATagType.PA_TAG_VOLUME.toString().charCodeAt(0):
+            tag = new PAVolume(tagsBuffer.subarray(offset))
+            break;
+          case PATagType.PA_TAG_U8.toString().charCodeAt(0):
+            tag = new PAFormat(tagsBuffer.subarray(offset))
             break;
           default:
             throw new Error(`Tag type: ${tagType} not supported. Please report issue.`)
