@@ -4,9 +4,6 @@ import { PACommandType } from '../src/command'
 import { PA_MAX_REQUEST_ID } from '../src/protocol'
 import { PAU32, PAArbitrary } from '../src/tag'
 
-// Build packet from parts
-// Build packet from buffer
-// Test
 const data = {
   requestId: Math.floor(Math.random() * PA_MAX_REQUEST_ID),
   command: PACommandType.PA_COMMAND_AUTH
@@ -38,7 +35,7 @@ test(`Build packet from sections: requestId`, t => {
 })
 
 test(`Build packet from sections: header`, t => {
-  t.is(packet.header, PA_PACKET_HEADER)
+  t.deepEqual(packet.header, PA_PACKET_HEADER)
 })
 
 test(`Build packet from sections: tags`, t => {
@@ -62,7 +59,7 @@ test(`Build packet from buffer: requestId`, t => {
 })
 
 test(`Build packet from buffer: header`, t => {
-  t.is(packetFromBuffer.header, PA_PACKET_HEADER)
+  t.deepEqual(packetFromBuffer.header, PA_PACKET_HEADER)
 })
 
 test(`Build packet from buffer: tags`, t => {

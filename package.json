@@ -4,7 +4,10 @@
   "description": "A nodejs based PulseAudio client",
   "main": "build/index.js",
   "scripts": {
-    "test": "ava test/tags.spec.ts",
+    "test": "ava",
+    "test:tag": "ava test/tag.spec.ts",
+    "test:packet": "ava test/packet.spec.ts",
+    "test:command": "ava test/command.spec.ts",
     "watch": "tsc --watch --project tsconfig.json"
   },
   "repository": {

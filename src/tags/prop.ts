@@ -43,9 +43,10 @@ export default class PAProp extends PATag<[string, string]> {
     return buffer.subarray(0, PA_PROP_BASE_SIZE + propName.size + propValue.size)
   }
 
+  /* @ts-ignore */
+  // PAProp is not really a PulseAudio tag type
   isValidBuffer(buffer: Buffer): boolean {
-    const tagType: PATagType = buffer.readUInt8(0)
-    return tagType === this.type
+    return true
   }
 
   parseTag(buffer: Buffer): [PAString, PAArbitrary] {

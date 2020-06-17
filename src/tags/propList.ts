@@ -12,9 +12,7 @@ export default class PAPropList extends PATag<[string, string][]> {
 
   toTagBuffer(value: [string, string][]): Buffer {
     const props: PAProp[] = []
-    for (const val of value) {
-      props.push(new PAProp(val))
-    }
+    value.map(val => props.push(new PAProp(val)))
 
     const parts: Buffer[] = [Buffer.from(PATagType.PA_TAG_PROPLIST), ...props.map(p => p.tag), Buffer.from(PATagType.PA_TAG_STRING_NULL)]
     return Buffer.concat(parts)
@@ -37,7 +35,7 @@ export default class PAPropList extends PATag<[string, string][]> {
 
   isValidBuffer(buffer: Buffer): boolean {
     const tagType: PATagType = buffer.readUInt8(0)
-    return tagType === this.type
+    return tagType === PATagType.PA_TAG_PROPLIST.toString().charCodeAt(0)
   }
 
   parseTag(buffer: Buffer): PAProp[] {

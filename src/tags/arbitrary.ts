@@ -29,7 +29,7 @@ export default class PAArbitrary extends PATag<Buffer> {
 
   isValidBuffer(buffer: Buffer): boolean {
     const tagType: PATagType = buffer.readUInt8(0)
-    return tagType === this.type
+    return tagType === PATagType.PA_TAG_ARBITRARY.toString().charCodeAt(0)
   }
 
   isTagBuffer(buffer: Buffer) {

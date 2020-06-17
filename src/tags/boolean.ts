@@ -24,11 +24,11 @@ export default class PABoolean extends PATag<boolean> {
 
   isValidBuffer(buffer: Buffer): boolean {
     const tagType: PATagType = buffer.readUInt8(0)
-    return tagType === this.type
+    return [PATagType.PA_TAG_BOOLEAN, PATagType.PA_TAG_BOOLEAN_TRUE, PATagType.PA_TAG_BOOLEAN_FALSE].map(e => e.toString().charCodeAt(0)).includes(tagType)
   }
 
   /* @ts-ignore */
   isTagBuffer(buffer: Buffer): boolean {
-    return true 
+    return true
   }
 }

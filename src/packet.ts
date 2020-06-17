@@ -90,7 +90,7 @@ export default class PAPacket {
     if (!PAPacket.isValidPacket(buffer)) {
       throw new Error(`Packet is not valid.`)
     }
-    
+
     try {
       this.tagsSize = buffer.readUInt32BE(SectionIndex.SIZE)
       this.header = buffer.subarray(SectionIndex.HEADER, SectionIndex.HEADER_END)
@@ -106,18 +106,16 @@ export default class PAPacket {
         const tagType: PATagType = tagsBuffer.readUInt8(offset)
         switch (tagType) {
           case PATagType.PA_TAG_U32.toString().charCodeAt(0):
-            tag = new PAU32(tagsBuffer.subarray(offset, 5))  // TODO: subarray?
-            this.tags.push(tag)
-            offset += tag.size
+            tag = new PAU32(tagsBuffer.subarray(offset))
             break;
           case PATagType.PA_TAG_ARBITRARY.toString().charCodeAt(0):
-            tag = new PAArbitrary(tagsBuffer.subarray(offset, 5))  // TODO: subarray?
-            this.tags.push(tag)
-            offset += tag.size
+            tag = new PAArbitrary(tagsBuffer.subarray(offset))
             break;
           default:
             throw new Error(`Tag type: ${tagType} not supported. Please report issue.`)
         }
+        this.tags.push(tag)
+        offset += tag.size
       }
     } catch (error) {
       console.log(error)

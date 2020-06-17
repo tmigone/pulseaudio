@@ -26,7 +26,7 @@ export default class PAU32 extends PATag<number> {
 
   isValidBuffer(buffer: Buffer): boolean {
     const tagType: PATagType = buffer.readUInt8(0)
-    return tagType === this.type.toString().charCodeAt(0)
+    return tagType === PATagType.PA_TAG_U32.toString().charCodeAt(0)
   }
 
   /* @ts-ignore */

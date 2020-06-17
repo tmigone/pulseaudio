@@ -56,7 +56,7 @@ export default class PAString extends PATag<string> {
 
   isValidBuffer(buffer: Buffer): boolean {
     const tagType: PATagType = buffer.readUInt8(0)
-    return (tagType === this.type) || (tagType === PATagType.PA_TAG_STRING_NULL.toString().charCodeAt(0))
+    return (tagType === PATagType.PA_TAG_STRING.toString().charCodeAt(0)) || (tagType === PATagType.PA_TAG_STRING_NULL.toString().charCodeAt(0))
   }
 
   /* @ts-ignore */

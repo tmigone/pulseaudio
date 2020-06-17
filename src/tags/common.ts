@@ -49,18 +49,18 @@ export abstract class PATag<T> {
   // if original size is correct then returns buffer as is
   // if original size is bigger then returns a resized buffer
   abstract sanitizeBuffer(buffer: Buffer): Buffer
-  
+
   // isTagBuffer: check if buffer is a tag buffer
   abstract isTagBuffer(buffer: Buffer): boolean
-  
+
   constructor(init: T | Buffer) {
     if (init instanceof Buffer && this.isTagBuffer(init)) {
-      // if (this.isValidBuffer(init)) {
+      if (this.isValidBuffer(init)) {
         this.tag = Buffer.from(this.sanitizeBuffer(init))
         this.value = this.fromTagBuffer(this.tag)
-      // } else {
-        // throw new Error(`Error parsing buffer. Incorrect tag type!`)
-      // }
+      } else {
+        throw new Error(`Error parsing buffer. Incorrect tag type!`)
+      }
     }
     else {
       this.value = init as T
