@@ -1,14 +1,19 @@
 import PAClient from './client'
 
-const client: PAClient = new PAClient('192.168.90.207:4317')
-client.connect()
+async function main() {
 
+  const client: PAClient = new PAClient('192.168.90.207:4317')
+  console.log(await client.connect())
+
+  console.log('connected!')
+
+  console.log(await client.setClientName())
+}
+main()
 // import { Socket } from 'net'
 // import PAPacket from './packet'
 // import { auth, setClientName, getSinks } from './commands'
 // // import PromiseSocket from "promise-socket"
-
-
 
 // const socket = new Socket()
 // // const socketPath = 'pulseaudio:4317'
@@ -54,20 +59,20 @@ client.connect()
 //   console.log(new PAPacket(content))
 
 //   await delay(3500)
-  
+
 //   // Set Client name
 //   await pSocket.write(setClientName(1, 'test-tomi'))
 //   const content2: Buffer = await pSocket.readAll() as Buffer
 //   console.log(new PAPacket(content2))
-  
+
 //   await delay(3500)
-  
+
 //   // Set get sinks
 //   await pSocket.write(getSinks(2))
 //   const content3: Buffer = await pSocket.readAll() as Buffer
 //   console.log(content3);
 //   console.log(new PAPacket(content3))
-  
+
 // }
 
 // main()

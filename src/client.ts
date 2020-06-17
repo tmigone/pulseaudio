@@ -5,6 +5,7 @@ import PAPacket from './packet'
 import PARequest, { PAResponse } from './request'
 import { PATag } from './tag'
 import { PA_PROTOCOL_VERSION, PA_MAX_REQUEST_ID } from './protocol'
+import { setClientName } from './commands/clientName'
 
 interface TCPSocket {
   port: number
@@ -19,27 +20,40 @@ export default class PAClient extends EventEmitter {
   private chunks: Buffer[] = []
   private requests: PARequest[] = []
   private lastRequestId: number = 0
+  private connected: boolean = false
 
   constructor(address: string) {
     super()
     this.parseAddress(address)
-    // this.pulseCookie = cookie
   }
 
-  connect(): void {
-    this.socket = new Socket()
-    this.socket.connect(this.pulseAddress.port, this.pulseAddress.host)
-    this.socket.on('connect', async () => {
-      let reply: PAResponse = await this.authenticate()
-      console.log(`Connected to PulseAudio at ${this.pulseAddress.host}:${this.pulseAddress.port}`)
-      console.log(`Server protocol version: ${reply.protocol}`)
-      console.log(`Client protocol version: ${PA_PROTOCOL_VERSION}`)
+  connect(): Promise<PAResponse> {
+    return new Promise<PAResponse>((resolve, reject) => {
+      this.socket = new Socket()
+      this.socket.connect(this.pulseAddress.port, this.pulseAddress.host)
+      this.socket.on('connect', async () => {
+        this.connected = true
+
+        // Authenticate client
+        let reply: PAResponse = await this.authenticate()
+        console.log(`Connected to PulseAudio at ${this.pulseAddress.host}:${this.pulseAddress.port}`)
+        console.log(`Server protocol version: ${reply.protocol}`)
+        console.log(`Client protocol version: ${PA_PROTOCOL_VERSION}`)
+
+        resolve(reply)
+      })
+      this.socket.on('readable', this.onReadable.bind(this))
+      this.socket.on('error', reject)
     })
-    this.socket.on('readable', this.onReadable.bind(this))
   }
 
   authenticate(): Promise<PAResponse> {
     const query: PAPacket = authenticate(this.requestId(), Buffer.from(this.pulseCookie, 'hex'))
+    return this.sendRequest(query)
+  }
+
+  setClientName(clientName?: string): Promise<PAResponse> {
+    const query: PAPacket = setClientName(this.requestId(), clientName)
     return this.sendRequest(query)
   }
 
@@ -75,6 +89,11 @@ export default class PAClient extends EventEmitter {
   private async sendRequest(query: PAPacket): Promise<PAResponse> {
     const request: PARequest = new PARequest(this.lastRequestId, query)
     this.requests.push(request)
+
+    if (!this.connected && query.command.value !== PACommandType.PA_COMMAND_AUTH.toString().charCodeAt(0)) {
+      return this.rejectRequest(request, new Error('No connection to PulseAudio.'))
+    }
+
     this.socket.write(request.query.write())
     return request.promise
   }
@@ -83,6 +102,11 @@ export default class PAClient extends EventEmitter {
     const request: PARequest | undefined = this.requests.find(r => r.id === reply.requestId.value)
     request?.resolve(this.parseReply(reply, request.query.command))
     this.requests = this.requests.filter(r => r.id !== reply.requestId.value)
+  }
+
+  private rejectRequest(request: PARequest, error: Error): void {
+    request.reject(error)
+    this.requests = this.requests.filter(r => r.id !== request.id)
   }
 
   private parseReply(reply: PAPacket, query: PATag<any>): any {
