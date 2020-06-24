@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events'
+import { readFileSync } from 'fs'
 import { Socket } from 'net'
 import PAPacket from './packet'
 import PARequest, { PAResponse } from './request'
@@ -25,16 +26,17 @@ interface TCPSocket {
 export default class PAClient extends EventEmitter {
 
   pulseAddress: TCPSocket
-  pulseCookie: string = '780000010059cf1c70a28fa55cc512a36d204963e8ce8b1ccfec5ef095d9b86f1f46f88aea9cb7ea18aa7d163174353379a277ea83867f5e36560749b235f025b48da7dadc7033921b820af1c4434f3dfc196a89f8bdd7357e40dcd741ddeccbc9c5c70cf966e863fef08746912ef2550b0068f4f343f5f97a0bcedae38d66b6483f13dd6af6051ad7b44cae1322e2f1cb2ea4d4ce280cd1775327b36fadf5c5a191758a1dcb02627ddb87e376ef02603c61639b323547359dace2d7a1b1471a0599baa37a2184c0f1a849a4fbccb943a80fb7dbe4619c9e1437bc0fac2811aed25a6305ebc2a23afbc04a4e206445cb20ce8cb2d6045fc158f11533ab0c20a0cfc6c93074'
+  pulseCookie: string
   private socket: Socket
   private chunks: Buffer[] = []
   private requests: PARequest[] = []
   private lastRequestId: number = 0
   private connected: boolean = false
 
-  constructor(address: string) {
+  constructor(address: string, cookiePath?: string) {
     super()
     this.parseAddress(address)
+    if (cookiePath) this.parseCookie(cookiePath)
   }
 
   // Client APIs
@@ -169,7 +171,7 @@ export default class PAClient extends EventEmitter {
   private parseEvent(packet: PAPacket): PAEvent {
     const details: number = packet.tags[0].value
     const index: number = packet.tags[1].value
-  
+
     // Parse category
     let category: string = ''
     switch (details & PASubscriptionEventType.FACILITY_MASK) {
@@ -206,7 +208,7 @@ export default class PAClient extends EventEmitter {
       default:
         throw new Error(`Details type ${details} not supported. Please report issue.`)
     }
-  
+
     // Parse event type
     let type: string = ''
     switch (details & PASubscriptionEventType.TYPE_MASK) {
@@ -222,16 +224,16 @@ export default class PAClient extends EventEmitter {
       default:
         throw new Error(`Event type ${details} not supported. Please report issue.`)
     }
-  
+
     return {
       index,
       category,
       type
     }
   }
-  
+
   private parseAddress(address: string): void {
-    // tcp:pulseaudio:4317
+    // reference = tcp:pulseaudio:4317
     if (address.includes('tcp')) {
       const split: string[] = address.split(':')
       this.pulseAddress = {
@@ -239,14 +241,14 @@ export default class PAClient extends EventEmitter {
         host: split[1]
       }
     }
-    // unix:/run/pulse/pulseaudio.socket
+    // reference = unix:/run/pulse/pulseaudio.socket
     // else if (address.includes('unix')) {
     //   const split: string[] = address.split(':')
     //   this.socketAddress = {
     //     path: split[1]
     //   }
     // }
-    // pulseaudio:4317
+    // reference = pulseaudio:4317
     else if (address.includes(':')) {
       const split: string[] = address.split(':')
       this.pulseAddress = {
@@ -256,6 +258,15 @@ export default class PAClient extends EventEmitter {
     }
     else {
       throw new Error('Unrecognized server address format. Please use "tcp:host:port", "unix:/path/to/socket" or "host:port".')
+    }
+  }
+
+  private parseCookie(cookiePath: string): void {
+    try {
+      this.pulseCookie = readFileSync(cookiePath, 'hex')
+    } catch (error) {
+      console.log(`Error reading cookie file, might not be able to authenticate.`)
+      console.log(error)
     }
   }
 }
