@@ -11,8 +11,11 @@ import {
   setClientName,
   setClientNameReply,
   getSinks,
-  getSinksReply
+  getSinksReply,
+  subscribe,
+  subscribeReply
 } from './command'
+import { PASubscriptionEventType, PAEvent } from './event'
 
 interface TCPSocket {
   port: number
@@ -57,6 +60,11 @@ export default class PAClient extends EventEmitter {
 
   authenticate(): Promise<PAResponse> {
     const query: PAPacket = authenticate(this.requestId(), Buffer.from(this.pulseCookie, 'hex'))
+    return this.sendRequest(query)
+  }
+
+  subscribe(): Promise<PAResponse> {
+    const query: PAPacket = subscribe(this.requestId())
     return this.sendRequest(query)
   }
 
@@ -114,9 +122,21 @@ export default class PAClient extends EventEmitter {
   }
 
   private resolveRequest(reply: PAPacket): void {
-    const request: PARequest | undefined = this.requests.find(r => r.id === reply.requestId.value)
-    request?.resolve(this.parseReply(reply, request.query.command))
-    this.requests = this.requests.filter(r => r.id !== reply.requestId.value)
+    switch (reply.command.value) {
+      case PACommandType.PA_COMMAND_REPLY:
+        const request: PARequest | undefined = this.requests.find(r => r.id === reply.requestId.value)
+        request?.resolve(this.parseReply(reply, request.query.command))
+        this.requests = this.requests.filter(r => r.id !== reply.requestId.value)
+        break
+      case PACommandType.PA_COMMAND_SUBSCRIBE_EVENT:
+        const event: PAEvent = this.parseEvent(reply)
+        console.log(event)
+        this.emit(event.category, event)
+        break
+      default:
+        throw new Error(`Reply type ${reply.command.value} not supported. Please report issue.`)
+    }
+
   }
 
   private rejectRequest(request: PARequest, error: Error): void {
@@ -137,12 +157,79 @@ export default class PAClient extends EventEmitter {
       case PACommandType.PA_COMMAND_GET_SINK_INFO_LIST:
         retObj = getSinksReply(reply)
         break
+      case PACommandType.PA_COMMAND_SUBSCRIBE:
+        retObj = subscribeReply()
+        break
       default:
         throw new Error(`Command ${query.value} not supported. Please report issue.`)
     }
     return retObj
   }
 
+  private parseEvent(packet: PAPacket): PAEvent {
+    const details: number = packet.tags[0].value
+    const index: number = packet.tags[1].value
+  
+    // Parse category
+    let category: string = ''
+    switch (details & PASubscriptionEventType.FACILITY_MASK) {
+      case PASubscriptionEventType.SINK:
+        category = 'sink'
+        break;
+      case PASubscriptionEventType.SOURCE:
+        category = 'source'
+        break;
+      case PASubscriptionEventType.SINK_INPUT:
+        category = 'sinkInput'
+        break;
+      case PASubscriptionEventType.SOURCE_OUTPUT:
+        category = 'sourceOutput'
+        break;
+      case PASubscriptionEventType.MODULE:
+        category = 'module'
+        break;
+      case PASubscriptionEventType.CLIENT:
+        category = 'client'
+        break;
+      case PASubscriptionEventType.SAMPLE_CACHE:
+        category = 'sampleCache'
+        break;
+      case PASubscriptionEventType.SERVER:
+        category = 'server'
+        break;
+      case PASubscriptionEventType.AUTOLOAD:
+        category = 'autoload'
+        break;
+      case PASubscriptionEventType.CARD:
+        category = 'card'
+        break;
+      default:
+        throw new Error(`Details type ${details} not supported. Please report issue.`)
+    }
+  
+    // Parse event type
+    let type: string = ''
+    switch (details & PASubscriptionEventType.TYPE_MASK) {
+      case PASubscriptionEventType.NEW:
+        type = 'new'
+        break
+      case PASubscriptionEventType.CHANGE:
+        type = 'change'
+        break
+      case PASubscriptionEventType.REMOVE:
+        type = 'remove'
+        break
+      default:
+        throw new Error(`Event type ${details} not supported. Please report issue.`)
+    }
+  
+    return {
+      index,
+      category,
+      type
+    }
+  }
+  
   private parseAddress(address: string): void {
     // tcp:pulseaudio:4317
     if (address.includes('tcp')) {
