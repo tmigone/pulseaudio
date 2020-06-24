@@ -1,7 +1,7 @@
 {
   "name": "@tmigone/pulseaudio",
   "version": "1.0.0",
-  "description": "A nodejs based PulseAudio client",
+  "description": "A TypeScript based client library for PulseAudio.",
   "main": "build/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -24,7 +24,8 @@
     "pulse",
     "audio",
     "paclient",
-    "palib"
+    "palib",
+    "client"
   ],
   "bugs": {
     "url": "https://github.com/tmigone/pulseaudio/issues"
