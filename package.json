@@ -6,7 +6,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc --project tsconfig.publish.json",
-    "test": "ava",
+    "test": "ava test/*.ts",
     "test:tag": "ava test/tag.spec.ts",
     "test:packet": "ava test/packet.spec.ts",
     "test:command": "ava test/command.spec.ts",
