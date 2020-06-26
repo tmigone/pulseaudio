@@ -11,7 +11,7 @@
     "test:packet": "ava test/packet.spec.ts",
     "test:command": "ava test/command.spec.ts",
     "watch": "tsc --watch --project tsconfig.json",
-    "prepublish": "npm run test && npm run build"
+    "prepare": "npm run test && npm run build"
   },
   "repository": {
     "type": "git",
