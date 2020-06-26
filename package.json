@@ -51,9 +51,7 @@
     ]
   },
   "files": [
-    "build/*.js",
-    "build/*.d.ts",
-    "build/*.js.map",
+    "build/*",
     "README.md",
     "CHANGELOG.md",
     "LICENSE"
