@@ -1,0 +1,17 @@
+name: Run versionist
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  versionist:
+    runs-on: ubuntu-latest
+    steps: 
+    - uses: actions/checkout@v1
+    - uses: tmigone/versionist-action@master
+      with:
+        github_email: 'tomasmigone@gmail.com'
+        github_username: 'Tomás Migone'
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        npm_token: ${{ secrets.NPM_TOKEN }}
