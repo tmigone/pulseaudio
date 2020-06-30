@@ -1,6 +1,6 @@
 // PulseAudio tag types
 // See https://github.com/pulseaudio/pulseaudio/blob/master/src/pulsecore/tagstruct.h#L41
-export const enum PATagType {
+export enum PATagType {
   PA_TAG_INVALID = 0,
   PA_TAG_STRING = 't',
   PA_TAG_STRING_NULL = 'N',
@@ -68,5 +68,9 @@ export abstract class PATag<T> {
     }
 
     this.size = this.tag.length
+  }
+
+  isKnownTagType(tagType: number): boolean {
+    return Object.values(PATagType).includes(String.fromCharCode(tagType))
   }
 }

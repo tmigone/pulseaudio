@@ -40,11 +40,17 @@ export default class PAPropList extends PATag<[string, string][]> {
 
   parseTag(buffer: Buffer): PAProp[] {
     // Find proplist end
-    // Loop until we find '4e' which is the string terminator
+    // Loop until we find '4e' which is the string terminator + next byte is not a known tag type
     // Once we find it, offset + 1 is where prop list ends
     let end: number = 0
-    while (buffer.readUInt8(end) !== PATagType.PA_TAG_STRING_NULL.toString().charCodeAt(0)) {
-      end += 1
+
+    for (let index: number = 0; index < buffer.length; index++) {
+      if (buffer.readUInt8(index) === PATagType.PA_TAG_STRING_NULL.toString().charCodeAt(0)) {
+        if (index === buffer.length - 1 || this.isKnownTagType(buffer.readUInt8(index + 1))) {
+          end = index
+          break
+        }
+      }
     }
 
     // Check if proplist is empty
