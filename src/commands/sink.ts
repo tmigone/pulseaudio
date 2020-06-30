@@ -33,6 +33,10 @@ export const getSinksReply = (packet: PAPacket): object => {
     'formats'
   ]
   const propValues: any[] = packet.tags.map(t => t.value)
-  const propArray: [string, any][] = propNames.map((p, i) => [p, propValues[i]])
-  return Object.fromEntries(propArray)
+
+  return new Array(Math.floor(propValues.length / propNames.length))
+    .fill(0)
+    .map(() => propValues.splice(0, propNames.length))
+    .map(pv => propNames.map((p, i) => [p, pv[i]]))
+    .map(pv => Object.fromEntries(pv))
 }
