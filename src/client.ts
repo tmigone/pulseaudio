@@ -14,9 +14,12 @@ import {
   getSinks,
   getSinksReply,
   subscribe,
-  subscribeReply
+  subscribeReply,
+  setSinkVolume,
+  setSinkVolumeReply
 } from './command'
 import { PASubscriptionEventType, PAEvent } from './event'
+import { PAError } from './error'
 
 interface TCPSocket {
   port: number
@@ -80,6 +83,11 @@ export default class PAClient extends EventEmitter {
     return this.sendRequest(query)
   }
 
+  setSinkVolume(sink: number | string, volume: number): Promise<PAResponse> {
+    const query: PAPacket = setSinkVolume(this.requestId(), sink, { channels: 2, volumes: [volume, volume] })
+    return this.sendRequest(query)
+  }
+
   // Private methods
   private onReadable(): void {
     // Don't read if we don't have at least 10 bytes
@@ -124,21 +132,25 @@ export default class PAClient extends EventEmitter {
   }
 
   private resolveRequest(reply: PAPacket): void {
+    let request: PARequest | undefined
     switch (reply.command.value) {
+      case PACommandType.PA_COMMAND_ERROR:
+        request = this.requests.find(r => r.id === reply.requestId.value)
+        request?.resolve({ success: false, error: PAError[reply.tags[0].value] })
+        this.requests = this.requests.filter(r => r.id !== reply.requestId.value)
+        break
       case PACommandType.PA_COMMAND_REPLY:
-        const request: PARequest | undefined = this.requests.find(r => r.id === reply.requestId.value)
+        request = this.requests.find(r => r.id === reply.requestId.value)
         request?.resolve(this.parseReply(reply, request.query.command))
         this.requests = this.requests.filter(r => r.id !== reply.requestId.value)
         break
       case PACommandType.PA_COMMAND_SUBSCRIBE_EVENT:
         const event: PAEvent = this.parseEvent(reply)
-        console.log(event)
         this.emit(event.category, event)
         break
       default:
         throw new Error(`Reply type ${reply.command.value} not supported. Please report issue.`)
     }
-
   }
 
   private rejectRequest(request: PARequest, error: Error): void {
@@ -158,6 +170,9 @@ export default class PAClient extends EventEmitter {
         break
       case PACommandType.PA_COMMAND_GET_SINK_INFO_LIST:
         retObj = getSinksReply(reply)
+        break
+      case PACommandType.PA_COMMAND_SET_SINK_VOLUME:
+        retObj = setSinkVolumeReply(reply)
         break
       case PACommandType.PA_COMMAND_SUBSCRIBE:
         retObj = subscribeReply()

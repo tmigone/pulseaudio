@@ -18,6 +18,7 @@ import {
   PAVolume,
   PAFormat
 } from './tag'
+import { ChannelVolume } from './tags/channelVolume'
 
 export const PA_PACKET_HEADER: Buffer = Buffer.from([
   0xFF, 0xFF, 0xFF, 0xFF,
@@ -212,5 +213,9 @@ export default class PAPacket {
 
   putPropList(value: [string, string][]): void {
     this.tags.push(new PAPropList(value))
+  }
+
+  putChannelVolume(value: ChannelVolume): void {
+    this.tags.push(new PAChannelVolume(value))
   }
 }
