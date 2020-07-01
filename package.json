@@ -1,6 +1,6 @@
 {
   "name": "@tmigone/pulseaudio",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "A TypeScript based client library for PulseAudio.",
   "main": "build/index.js",
   "types": "dist/index.d.ts",
