@@ -69,6 +69,14 @@ test(`Build packet from buffer: tags`, t => {
   ])
 })
 
+test(`Build packet from buffer that is longer than packet`, t => {
+  const packetWithExtraStuff: PAPacket = new PAPacket(Buffer.from('00000014ffffffff0000000000000000000000004c000000424cffffffff4c000000104c0000000100000014ffffffff0000000000000000000000004c000000424cffffffff4c000000114c00000001', 'hex'))
+  t.deepEqual(packetWithExtraStuff.tags, [
+    new PAU32(Buffer.from('4c00000010', 'hex')),
+    new PAU32(Buffer.from('4c00000001', 'hex'))
+  ])
+})
+
 
 
 

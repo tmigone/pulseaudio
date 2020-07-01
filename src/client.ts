@@ -12,7 +12,9 @@ import {
   setClientName,
   setClientNameReply,
   getSinks,
+  getSink,
   getSinksReply,
+  getSinkReply,
   subscribe,
   subscribeReply,
   setSinkVolume,
@@ -83,6 +85,11 @@ export default class PAClient extends EventEmitter {
     return this.sendRequest(query)
   }
 
+  getSink(sink: number | string): Promise<PAResponse> {
+    const query: PAPacket = getSink(this.requestId(), sink)
+    return this.sendRequest(query)
+  }
+
   setSinkVolume(sink: number | string, volume: number): Promise<PAResponse> {
     const query: PAPacket = setSinkVolume(this.requestId(), sink, { channels: 2, volumes: [volume, volume] })
     return this.sendRequest(query)
@@ -98,8 +105,10 @@ export default class PAClient extends EventEmitter {
 
     let chunk: Buffer = this.socket.read(this.socket.readableLength)
 
-    // If it's a new packet, discard previous chunks
-    if (PAPacket.isChunkHeader(chunk)) {
+    // Discard previous chunks if we get a new packet header and stil have pending chunks
+    // This should not happen really, if it does it's probably a bug
+    if (PAPacket.isChunkHeader(chunk) && this.chunks.length > 0) {
+      console.log('WARNING: discarding chunks, this might be a bug...')
       this.chunks = []
     }
 
@@ -107,10 +116,11 @@ export default class PAClient extends EventEmitter {
     this.chunks.push(chunk)
 
     // Once we get the entire package fulfill the request promise
-    if (PAPacket.isValidPacket(this.chunks)) {
+    // Chunks can contain more than one packet so we loop until we are done
+    while (PAPacket.isValidPacket(this.chunks)) {
       const packet: PAPacket = new PAPacket(Buffer.concat(this.chunks))
       this.resolveRequest(packet)
-      this.chunks = []
+      this.chunks = PAPacket.getChunksSize(this.chunks) === packet.packet.length ? [] : [Buffer.concat(this.chunks).subarray(packet.packet.length)]
     }
   }
 
@@ -147,6 +157,7 @@ export default class PAClient extends EventEmitter {
       case PACommandType.PA_COMMAND_SUBSCRIBE_EVENT:
         const event: PAEvent = this.parseEvent(reply)
         this.emit(event.category, event)
+        this.emit('all', event)
         break
       default:
         throw new Error(`Reply type ${reply.command.value} not supported. Please report issue.`)
@@ -170,6 +181,9 @@ export default class PAClient extends EventEmitter {
         break
       case PACommandType.PA_COMMAND_GET_SINK_INFO_LIST:
         retObj = getSinksReply(reply)
+        break
+      case PACommandType.PA_COMMAND_GET_SINK_INFO:
+        retObj = getSinkReply(reply)
         break
       case PACommandType.PA_COMMAND_SET_SINK_VOLUME:
         retObj = setSinkVolumeReply(reply)

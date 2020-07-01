@@ -1,3 +1,4 @@
+// import PAPacket from './packet'
 import PAClient from './index'
 
 async function main() {
@@ -6,7 +7,7 @@ async function main() {
   await client.connect()
   await client.setClientName()
   await client.subscribe()
-  client.on('sink', data => {    
+  client.on('sink', data => {
     console.log(data)
   })
 

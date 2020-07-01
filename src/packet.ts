@@ -43,7 +43,7 @@ const enum SectionIndex {
 }
 
 // PulseAudio Packet structure by section
-// - 4 bytes: Size of the TAGS section in bytes
+// - 4 bytes: Size of the TAGS section in bytes (including command and requestId)
 // - 16 bytes: Packet header
 // - 5 bytes: Packet command with u32 tag prefix
 // - 5 bytes: Request ID with u32 tag prefix
@@ -92,7 +92,6 @@ export default class PAPacket {
   }
 
   read(buffer: Buffer): void {
-    // TODO: assert buffer size/format
     // Sections: tagSize, header,
     if (!PAPacket.isValidPacket(buffer)) {
       throw new Error(`Packet is not valid.`)
@@ -105,7 +104,7 @@ export default class PAPacket {
       this.requestId = new PAU32(buffer.readUInt32BE(SectionIndex.REQUEST))
 
       // Sections: tags
-      const tagsBuffer: Buffer = buffer.subarray(SectionIndex.TAGS)
+      const tagsBuffer: Buffer = buffer.subarray(SectionIndex.TAGS, SectionIndex.TAGS + this.tagsSize - SectionLength.COMMAND - SectionLength.REQUEST)
 
       let offset: number = 0
       let tag: PATag<any>
@@ -170,15 +169,23 @@ export default class PAPacket {
     return Buffer.compare(header, PA_PACKET_HEADER) === 0
   }
 
+  static getChunksSize(chunks: Buffer[]) {
+    return chunks.reduce((sum, chunk) => { return sum += chunk.length }, 0)
+  }
+
   // Test wether a series of chunks can construct a valid PA Packet
+  // Min requirements are starting with a chunk header and having enough bytes to complete the packet
   static isValidPacket(chunks: Buffer | Buffer[]): boolean {
     if (chunks instanceof Buffer) {
       chunks = [chunks]
     }
-    let chunksSize: number = chunks.reduce((sum, chunk) => { return sum += chunk.length }, 0)
+    if (chunks.length === 0) {
+      return false
+    }
+    let chunksSize: number = this.getChunksSize(chunks)
     let dataLength: number = chunks[0].readUInt32BE(0)
 
-    return this.isChunkHeader(chunks[0]) && chunksSize === SectionLength.SIZE + SectionLength.HEADER + dataLength
+    return this.isChunkHeader(chunks[0]) && chunksSize >= (SectionLength.SIZE + SectionLength.HEADER + dataLength)
   }
 
   setCommand(value: number): void {
