@@ -1,5 +1,4 @@
-import PAClient from '../index'
-import { AuthInfo, ClientInfo, ServerInfo, Sink } from '../types/pulseaudio'
+import PAClient, { AuthInfo, ClientInfo, ServerInfo, Sink} from '../index'
 
 export default class BalenaAudio extends PAClient {
 
@@ -67,7 +66,6 @@ async function main() {
   
   client.on('play', _ => {
     console.log('sink playing')
-    // console.log(data)
   })
   client.on('stop', _ => {
     console.log('sink stopped')
