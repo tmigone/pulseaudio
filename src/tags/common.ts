@@ -73,4 +73,13 @@ export abstract class PATag<T> {
   isKnownTagType(tagType: number): boolean {
     return Object.values(PATagType).includes(String.fromCharCode(tagType))
   }
+  
+  static toObject(tags: PATag<any>[], keyNames: string[]) {
+    const values: any[] = tags.map(t => t.value)
+    return new Array(Math.floor(values.length / keyNames.length))
+      .fill(0)
+      .map(() => values.splice(0, keyNames.length))
+      .map(pv => keyNames.map((p, i) => [p, pv[i]]))
+      .map(pv => Object.fromEntries(pv))
+  }
 }

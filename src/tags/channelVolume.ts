@@ -1,11 +1,7 @@
 import { PATag, PATagType } from './common'
+import { ChannelVolume } from '../types/pulseaudio'
 
 const PA_CHANNEL_VOLUME_BASE_SIZE = 2
-
-export type ChannelVolume = {
-  channels: number,
-  volumes: number[]
-}
 
 // PulseAudio channel volume tag structure by section
 // - 1 byte: tag type

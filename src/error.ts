@@ -1,3 +1,4 @@
+// See https://github.com/pulseaudio/pulseaudio/blob/v13.0/src/pulse/error.c
 export enum PAErrorList {
   PA_OK = "OK",
   PA_ERR_ACCESS = "Access denied",

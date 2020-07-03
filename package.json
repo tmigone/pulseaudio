@@ -3,7 +3,7 @@
   "version": "0.0.11",
   "description": "A TypeScript based client library for PulseAudio.",
   "main": "build/index.js",
-  "types": "dist/index.d.ts",
+  "types": "build/index.d.ts",
   "scripts": {
     "clean": "rm -rf build",
     "build": "npm run clean && tsc --project tsconfig.publish.json",

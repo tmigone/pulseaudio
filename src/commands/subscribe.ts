@@ -1,6 +1,7 @@
 import PAPacket from '../packet'
 import { PACommandType } from './common'
 import { PASubscriptionMask } from '../event'
+import { SubscribeInfo } from '../types/pulseaudio'
 
 export const subscribe = (requestId: number): PAPacket => {
   const packet: PAPacket = new PAPacket()
@@ -10,8 +11,8 @@ export const subscribe = (requestId: number): PAPacket => {
   return packet
 }
 
-export const subscribeReply = (): object => {
+export const subscribeReply = (): SubscribeInfo => {
   return {
-    subscribed: true
+    success: true
   }
 }

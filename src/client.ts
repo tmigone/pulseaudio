@@ -2,26 +2,21 @@ import { EventEmitter } from 'events'
 import { readFileSync } from 'fs'
 import { Socket } from 'net'
 import PAPacket from './packet'
-import PARequest, { PAResponse } from './request'
+import PARequest from './request'
 import { PATag } from './tag'
 import { PA_PROTOCOL_VERSION, PA_MAX_REQUEST_ID } from './protocol'
-import {
-  PACommandType,
-  authenticate,
-  authenticateReply,
-  setClientName,
-  setClientNameReply,
-  getSinks,
-  getSink,
-  getSinksReply,
-  getSinkReply,
-  subscribe,
-  subscribeReply,
-  setSinkVolume,
-  setSinkVolumeReply
-} from './command'
+import PACommand, { PACommandType } from './command'
+import PAResponse from './response'
 import { PASubscriptionEventType, PAEvent } from './event'
 import { PAError } from './error'
+import {
+  AuthInfo,
+  ClientInfo,
+  ServerInfo,
+  Sink,
+  SubscribeInfo,
+  VolumeInfo
+} from './types/pulseaudio'
 
 interface TCPSocket {
   port: number
@@ -30,8 +25,8 @@ interface TCPSocket {
 
 export default class PAClient extends EventEmitter {
 
-  pulseAddress: TCPSocket
-  pulseCookie: string
+  public pulseAddress: TCPSocket
+  public pulseCookie: string
   private socket: Socket
   private chunks: Buffer[] = []
   private requests: PARequest[] = []
@@ -45,15 +40,15 @@ export default class PAClient extends EventEmitter {
   }
 
   // Client APIs
-  connect(): Promise<PAResponse> {
-    return new Promise<PAResponse>((resolve, reject) => {
+  connect(): Promise<AuthInfo> {
+    return new Promise<AuthInfo>((resolve, reject) => {
       this.socket = new Socket()
       this.socket.connect(this.pulseAddress.port, this.pulseAddress.host)
       this.socket.on('connect', async () => {
         this.connected = true
 
         // Authenticate client
-        let reply: PAResponse = await this.authenticate()
+        let reply: AuthInfo = await this.authenticate()
         console.log(`Connected to PulseAudio at ${this.pulseAddress.host}:${this.pulseAddress.port}`)
         console.log(`Server protocol version: ${reply.protocol}`)
         console.log(`Client protocol version: ${PA_PROTOCOL_VERSION}`)
@@ -65,33 +60,38 @@ export default class PAClient extends EventEmitter {
     })
   }
 
-  authenticate(): Promise<PAResponse> {
-    const query: PAPacket = authenticate(this.requestId(), Buffer.from(this.pulseCookie, 'hex'))
+  authenticate(): Promise<AuthInfo> {
+    const query: PAPacket = PACommand.authenticate(this.requestId(), Buffer.from(this.pulseCookie, 'hex'))
     return this.sendRequest(query)
   }
 
-  subscribe(): Promise<PAResponse> {
-    const query: PAPacket = subscribe(this.requestId())
+  subscribe(): Promise<SubscribeInfo> {
+    const query: PAPacket = PACommand.subscribe(this.requestId())
     return this.sendRequest(query)
   }
 
-  setClientName(clientName?: string): Promise<PAResponse> {
-    const query: PAPacket = setClientName(this.requestId(), clientName)
+  setClientName(clientName?: string): Promise<ClientInfo> {
+    const query: PAPacket = PACommand.setClientName(this.requestId(), clientName)
     return this.sendRequest(query)
   }
 
-  getSinks(): Promise<PAResponse> {
-    const query: PAPacket = getSinks(this.requestId())
+  getServerInfo(): Promise<ServerInfo> {
+    const query: PAPacket = PACommand.serverInfo(this.requestId())
     return this.sendRequest(query)
   }
 
-  getSink(sink: number | string): Promise<PAResponse> {
-    const query: PAPacket = getSink(this.requestId(), sink)
+  getSinks(): Promise<Sink[]> {
+    const query: PAPacket = PACommand.getSinks(this.requestId())
     return this.sendRequest(query)
   }
 
-  setSinkVolume(sink: number | string, volume: number): Promise<PAResponse> {
-    const query: PAPacket = setSinkVolume(this.requestId(), sink, { channels: 2, volumes: [volume, volume] })
+  getSink(sink: number | string): Promise<Sink> {
+    const query: PAPacket = PACommand.getSink(this.requestId(), sink)
+    return this.sendRequest(query)
+  }
+
+  setSinkVolume(sink: number | string, volume: number): Promise<VolumeInfo> {
+    const query: PAPacket = PACommand.setSinkVolume(this.requestId(), sink, { channels: 2, volumes: [volume, volume] })
     return this.sendRequest(query)
   }
 
@@ -129,7 +129,7 @@ export default class PAClient extends EventEmitter {
     return this.lastRequestId
   }
 
-  private async sendRequest(query: PAPacket): Promise<PAResponse> {
+  private async sendRequest(query: PAPacket): Promise<any> {
     const request: PARequest = new PARequest(this.lastRequestId, query)
     this.requests.push(request)
 
@@ -174,22 +174,25 @@ export default class PAClient extends EventEmitter {
 
     switch (query.value) {
       case PACommandType.PA_COMMAND_AUTH:
-        retObj = authenticateReply(reply)
+        retObj = PAResponse.authenticateReply(reply)
         break
       case PACommandType.PA_COMMAND_SET_CLIENT_NAME:
-        retObj = setClientNameReply(reply)
+        retObj = PAResponse.setClientNameReply(reply)
         break
       case PACommandType.PA_COMMAND_GET_SINK_INFO_LIST:
-        retObj = getSinksReply(reply)
+        retObj = PAResponse.getSinksReply(reply)
         break
       case PACommandType.PA_COMMAND_GET_SINK_INFO:
-        retObj = getSinkReply(reply)
+        retObj = PAResponse.getSinkReply(reply)
         break
       case PACommandType.PA_COMMAND_SET_SINK_VOLUME:
-        retObj = setSinkVolumeReply(reply)
+        retObj = PAResponse.setSinkVolumeReply(reply)
+        break
+      case PACommandType.PA_COMMAND_GET_SERVER_INFO:
+        retObj = PAResponse.serverInfoReply(reply)
         break
       case PACommandType.PA_COMMAND_SUBSCRIBE:
-        retObj = subscribeReply()
+        retObj = PAResponse.subscribeReply()
         break
       default:
         throw new Error(`Command ${query.value} not supported. Please report issue.`)

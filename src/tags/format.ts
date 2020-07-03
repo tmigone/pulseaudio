@@ -1,10 +1,7 @@
 import { PATag, PATagType } from './common'
 import { PAPropList } from '../tag'
+import { Format } from '../types/pulseaudio'
 
-type Format = {
-  encoding: number,
-  properties: [string, string][]
-}
 // PulseAudio format tag structure by section
 // - 1 byte: u8 tag type
 // - 1 byte: format count

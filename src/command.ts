@@ -3,10 +3,11 @@ import { authenticate, authenticateReply } from './commands/authenticate'
 import { setClientName, setClientNameReply } from './commands/clientName'
 import { getSinks, getSink, getSinksReply, getSinkReply, setSinkVolume, setSinkVolumeReply } from './commands/sink'
 import { subscribe, subscribeReply } from './commands/subscribe'
+import { serverInfo, serverInfoReply } from './commands/server'
 
 export { PACommandType }
 
-export {
+export default {
   // Commands
   authenticate,
   setClientName,
@@ -14,6 +15,7 @@ export {
   getSink,
   subscribe,
   setSinkVolume,
+  serverInfo,
   
   // Replies
   setClientNameReply,
@@ -21,7 +23,8 @@ export {
   getSinksReply,
   getSinkReply,
   subscribeReply,
-  setSinkVolumeReply
+  setSinkVolumeReply,
+  serverInfoReply
 }
 
 

@@ -1,6 +1,7 @@
 import PAPacket from '../packet'
 import { PACommandType } from './common'
 import { PA_PROTOCOL_VERSION } from '../protocol'
+import { AuthInfo } from '../types/pulseaudio'
 
 export const authenticate = (requestId: number, cookie: Buffer): PAPacket => {
   const packet: PAPacket = new PAPacket()
@@ -11,7 +12,7 @@ export const authenticate = (requestId: number, cookie: Buffer): PAPacket => {
   return packet
 }
 
-export const authenticateReply = (packet: PAPacket): object => {
+export const authenticateReply = (packet: PAPacket): AuthInfo => {
   return {
     protocol: packet.tags[0].value
   }

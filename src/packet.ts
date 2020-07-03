@@ -18,7 +18,7 @@ import {
   PAVolume,
   PAFormat
 } from './tag'
-import { ChannelVolume } from './tags/channelVolume'
+import { ChannelVolume } from './types/pulseaudio'
 
 export const PA_PACKET_HEADER: Buffer = Buffer.from([
   0xFF, 0xFF, 0xFF, 0xFF,

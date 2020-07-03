@@ -1,5 +1,6 @@
 import PAPacket from '../packet'
 import { PACommandType } from './common'
+import { ClientInfo } from '../types/pulseaudio'
 
 export const setClientName = (requestId: number, clientName: string = 'palib-client'): PAPacket => {
   const packet: PAPacket = new PAPacket()
@@ -9,8 +10,8 @@ export const setClientName = (requestId: number, clientName: string = 'palib-cli
   return packet
 }
 
-export const setClientNameReply = (packet: PAPacket): object => {
+export const setClientNameReply = (packet: PAPacket): ClientInfo => {
   return {
-    clientIndex: packet.tags[0].value
+    index: packet.tags[0].value
   }
 }

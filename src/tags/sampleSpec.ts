@@ -1,12 +1,7 @@
 import { PATag, PATagType } from './common'
+import { SampleSpec } from '../types/pulseaudio'
 
 const PA_SAMPLE_SPEC_SIZE = 7
-
-export type SampleSpec = {
-  format: number,
-  channels: number,
-  rate: number
-}
 
 // PulseAudio sampleSpec tag structure by section
 // - 1 byte: tag type

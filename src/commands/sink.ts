@@ -1,7 +1,7 @@
 import PAPacket from '../packet'
 import { PACommandType } from './common'
-import { ChannelVolume } from '../tags/channelVolume'
 import { PATag } from '../tag'
+import { Sink, ChannelVolume } from '../types/pulseaudio'
 
 const sinkKeys: string[] = [
   'index',
@@ -28,17 +28,17 @@ const sinkKeys: string[] = [
   'formats'
 ]
 
-export const getSinks = (requestId: number) => {
+export const getSinks = (requestId: number): PAPacket => {
   const packet: PAPacket = new PAPacket()
   packet.setCommand(PACommandType.PA_COMMAND_GET_SINK_INFO_LIST)
   packet.setRequestId(requestId)
   return packet
 }
-export const getSinksReply = (packet: PAPacket): object => {
-  return tagsToObject(packet.tags, sinkKeys)
+export const getSinksReply = (packet: PAPacket): Sink[] => {
+  return PATag.toObject(packet.tags, sinkKeys)
 }
 
-export const getSink = (requestId: number, sink: number | string) => {
+export const getSink = (requestId: number, sink: number | string): PAPacket => {
   const packet: PAPacket = new PAPacket()
   packet.setCommand(PACommandType.PA_COMMAND_GET_SINK_INFO)
   packet.setRequestId(requestId)
@@ -46,11 +46,11 @@ export const getSink = (requestId: number, sink: number | string) => {
   packet.putString(typeof sink === 'string' ? sink : '')
   return packet
 }
-export const getSinkReply = (packet: PAPacket): object => {
-  return tagsToObject(packet.tags, sinkKeys)[0]
+export const getSinkReply = (packet: PAPacket): Sink => {
+  return PATag.toObject(packet.tags, sinkKeys)[0]
 }
 
-export const setSinkVolume = (requestId: number, sink: number | string, channelVolumes: ChannelVolume) => {
+export const setSinkVolume = (requestId: number, sink: number | string, channelVolumes: ChannelVolume): PAPacket => {
   const packet: PAPacket = new PAPacket()
   packet.setCommand(PACommandType.PA_COMMAND_SET_SINK_VOLUME)
   packet.setRequestId(requestId)
@@ -61,16 +61,7 @@ export const setSinkVolume = (requestId: number, sink: number | string, channelV
 }
 
 /* @ts-ignore */
-export const setSinkVolumeReply = (packet: PAPacket): object => {
+export const setSinkVolumeReply = (packet: PAPacket): PAVolumeInfo => {
   // Looks like the reply has no data
   return { success: true }
-}
-
-function tagsToObject(tags: PATag<any>[], keyNames: string[]) {
-  const values: any[] = tags.map(t => t.value)
-  return new Array(Math.floor(values.length / keyNames.length))
-    .fill(0)
-    .map(() => values.splice(0, keyNames.length))
-    .map(pv => keyNames.map((p, i) => [p, pv[i]]))
-    .map(pv => Object.fromEntries(pv))
 }
