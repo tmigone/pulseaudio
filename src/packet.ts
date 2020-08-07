@@ -43,7 +43,7 @@ const enum SectionIndex {
 }
 
 // PulseAudio Packet structure by section
-// - 4 bytes: Size of the TAGS section in bytes (including command and requestId)
+// - 4 bytes: Size of the TAGS section in bytes (including command and requestId)!
 // - 16 bytes: Packet header
 // - 5 bytes: Packet command with u32 tag prefix
 // - 5 bytes: Request ID with u32 tag prefix
@@ -59,9 +59,9 @@ export default class PAPacket {
   requestId: PAU32
   tags: PATag<any>[] = []
 
-  constructor(packet?: Buffer) {
-    if (packet) {
-      this.packet = Buffer.from(packet)
+  constructor(buffer?: Buffer) {
+    if (buffer) {
+      this.packet = Buffer.from(buffer.subarray(0, PAPacket.getPacketSize(buffer)))
       this.read(this.packet)
     }
   }
@@ -169,8 +169,15 @@ export default class PAPacket {
     return Buffer.compare(header, PA_PACKET_HEADER) === 0
   }
 
+  // Returns the size of split shunks in bytes
   static getChunksSize(chunks: Buffer[]) {
     return chunks.reduce((sum, chunk) => { return sum += chunk.length }, 0)
+  }
+
+  // Get size of the packet in bytes
+  static getPacketSize(buffer: Buffer) {
+    let tagsSize = buffer.readUInt32BE(SectionIndex.SIZE)
+    return SectionLength.SIZE + SectionLength.HEADER + tagsSize
   }
 
   // Test wether a series of chunks can construct a valid PA Packet
