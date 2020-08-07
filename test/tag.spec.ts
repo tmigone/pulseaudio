@@ -1,5 +1,5 @@
 import test from 'ava'
-import { PATag, PATagType, PAU32, PABoolean, PAString, PAArbitrary, PAProp, PAPropList, PAChannelMap, PASampleSpec, PAChannelVolume, PAUsec, PAVolume, PAFormat } from '../src/tag'
+import { PATag, PATagType, PAU32, PABoolean, PAString, PAArbitrary, PAProp, PAPropList, PAChannelMap, PASampleSpec, PAChannelVolume, PAUsec, PAVolume } from '../src/tag'
 
 interface PATagTestCases<T> {
   title: string
@@ -266,26 +266,26 @@ const cases: PATagTestCases<any>[] = [
       value: 65536
     }
   },
-  {
-    title: 'Create format from values',
-    pa_tag: new PAFormat([{ encoding: 1, properties: [] }]),
-    expected: {
-      tag: Buffer.from('4201664201504e', 'hex'),
-      size: 7,
-      type: PATagType.PA_TAG_U8,
-      value: [{ encoding: 1, properties: [] }]
-    }
-  },
-  {
-    title: 'Create format from buffer',
-    pa_tag: new PAFormat(Buffer.from('4201664201504e', 'hex')),
-    expected: {
-      tag: Buffer.from('4201664201504e', 'hex'),
-      size: 7,
-      type: PATagType.PA_TAG_U8,
-      value: [{ encoding: 1, properties: [] }]
-    }
-  },
+  // {
+  //   title: 'Create format from values',
+  //   pa_tag: new PAFormat({ encoding: 1, properties: [] }),
+  //   expected: {
+  //     tag: Buffer.from('4201664201504e', 'hex'),
+  //     size: 7,
+  //     type: PATagType.PA_TAG_U8,
+  //     value: [{ encoding: 1, properties: [] }]
+  //   }
+  // },
+  // {
+  //   title: 'Create format from buffer',
+  //   pa_tag: new PAFormat(Buffer.from('4201664201504e', 'hex')),
+  //   expected: {
+  //     tag: Buffer.from('4201664201504e', 'hex'),
+  //     size: 7,
+  //     type: PATagType.PA_TAG_U8,
+  //     value: [{ encoding: 1, properties: [] }]
+  //   }
+  // },
 ]
 
 for (const c of cases) {

@@ -144,7 +144,7 @@ export default class PAPacket {
           case PATagType.PA_TAG_VOLUME.toString().charCodeAt(0):
             tag = new PAVolume(tagsBuffer.subarray(offset))
             break;
-          case PATagType.PA_TAG_U8.toString().charCodeAt(0):
+          case PATagType.PA_TAG_FORMAT_INFO.toString().charCodeAt(0):
             tag = new PAFormat(tagsBuffer.subarray(offset))
             break;
           default:

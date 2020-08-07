@@ -3,6 +3,7 @@ import { setClientNameReply } from './commands/clientName'
 import { getSinksReply, getSinkReply, setSinkVolumeReply } from './commands/sink'
 import { subscribeReply } from './commands/subscribe'
 import { serverInfoReply } from './commands/server'
+import { getSinkInputReply } from './commands/sinkInput'
 
 
 export default {
@@ -12,5 +13,6 @@ export default {
   getSinkReply,
   subscribeReply,
   setSinkVolumeReply,
-  serverInfoReply
+  serverInfoReply,
+  getSinkInputReply
 }

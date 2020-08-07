@@ -23,6 +23,10 @@ export interface Sink {
   formats: Format[]
 }
 
+export interface SinkInput {
+
+}
+
 export type ChannelVolume = {
   channels: number,
   volumes: number[]

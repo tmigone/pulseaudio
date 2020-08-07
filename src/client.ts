@@ -14,6 +14,7 @@ import {
   ClientInfo,
   ServerInfo,
   Sink,
+  SinkInput,
   SubscribeInfo,
   VolumeInfo
 } from './types/pulseaudio'
@@ -87,6 +88,11 @@ export default class PAClient extends EventEmitter {
 
   getSink(sink: number | string): Promise<Sink> {
     const query: PAPacket = PACommand.getSink(this.requestId(), sink)
+    return this.sendRequest(query)
+  }
+
+  getSinkInput(sinkInput: number | string): Promise<SinkInput> {
+    const query: PAPacket = PACommand.getSinkInput(this.requestId(), sinkInput)
     return this.sendRequest(query)
   }
 
@@ -193,6 +199,9 @@ export default class PAClient extends EventEmitter {
         break
       case PACommandType.PA_COMMAND_SUBSCRIBE:
         retObj = PAResponse.subscribeReply()
+        break
+      case PACommandType.PA_COMMAND_GET_SINK_INPUT_INFO:
+        retObj = PAResponse.getSinkInputReply(reply)
         break
       default:
         throw new Error(`Command ${query.value} not supported. Please report issue.`)
