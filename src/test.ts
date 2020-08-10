@@ -11,14 +11,14 @@ async function main() {
       console.log(data)
   })
 
-  // let sinks = await client.getSinks()
-  // console.log(sinks)
+  let sinks = await client.getSinks()
+  console.log(sinks)
 
-  // let sinkInput = await client.getSinkInput(0)
-  // console.log(sinkInput);
+  let sinkInput = await client.getSinkInput(0)
+  console.log(sinkInput);
   
-  // let res = await client.setSinkVolume('alsa_output.default', 40000)
-  // console.log(res)
+  let res = await client.setSinkVolume(0, 40000)
+  console.log(res)
 
 }
 main()

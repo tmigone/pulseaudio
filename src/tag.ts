@@ -11,6 +11,7 @@ import PAChannelVolume from './tags/channelVolume'
 import PAUsec from './tags/usec'
 import PAVolume from './tags/volume'
 import PAFormat from './tags/format'
+import PAU8 from './tags/u8'
 
 export { PATag, PATagType }
 
@@ -27,5 +28,6 @@ export {
   PAChannelVolume,
   PAUsec,
   PAVolume,
-  PAFormat
+  PAFormat,
+  PAU8
 }

@@ -16,7 +16,8 @@ import {
   PAChannelVolume,
   PAUsec,
   PAVolume,
-  PAFormat
+  PAFormat,
+  PAU8
 } from './tag'
 import { ChannelVolume } from './types/pulseaudio'
 
@@ -143,6 +144,9 @@ export default class PAPacket {
             break;
           case PATagType.PA_TAG_VOLUME.toString().charCodeAt(0):
             tag = new PAVolume(tagsBuffer.subarray(offset))
+            break;
+          case PATagType.PA_TAG_U8.toString().charCodeAt(0):
+            tag = new PAU8(tagsBuffer.subarray(offset))
             break;
           case PATagType.PA_TAG_FORMAT_INFO.toString().charCodeAt(0):
             tag = new PAFormat(tagsBuffer.subarray(offset))
