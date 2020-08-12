@@ -27,7 +27,7 @@ interface TCPSocket {
 export default class PAClient extends EventEmitter {
 
   public pulseAddress: TCPSocket
-  public pulseCookie: string
+  public pulseCookie: Buffer = Buffer.allocUnsafe(256)
   private socket: Socket
   private chunks: Buffer[] = []
   private requests: PARequest[] = []
@@ -62,7 +62,7 @@ export default class PAClient extends EventEmitter {
   }
 
   authenticate(): Promise<AuthInfo> {
-    const query: PAPacket = PACommand.authenticate(this.requestId(), Buffer.from(this.pulseCookie, 'hex'))
+    const query: PAPacket = PACommand.authenticate(this.requestId(), this.pulseCookie)
     return this.sendRequest(query)
   }
 
@@ -304,7 +304,7 @@ export default class PAClient extends EventEmitter {
 
   private parseCookie(cookiePath: string): void {
     try {
-      this.pulseCookie = readFileSync(cookiePath, 'hex')
+      this.pulseCookie = Buffer.from(readFileSync(cookiePath, 'hex'), 'hex')
     } catch (error) {
       console.log(`Error reading cookie file, might not be able to authenticate.`)
       console.log(error)
