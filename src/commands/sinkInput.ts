@@ -24,6 +24,16 @@ const sinkInputKeys: string[] = [
   'format'
 ]
 
+export const getSinkInputs = (requestId: number): PAPacket => {
+  const packet: PAPacket = new PAPacket()
+  packet.setCommand(PACommandType.PA_COMMAND_GET_SINK_INPUT_INFO_LIST)
+  packet.setRequestId(requestId)
+  return packet
+}
+
+export const getSinkInputsReply = (packet: PAPacket): SinkInput[] => {
+  return PATag.toObject(packet.tags, sinkInputKeys)
+}
 
 export const getSinkInput = (requestId: number, sinkInput: number | string): PAPacket => {
   const packet: PAPacket = new PAPacket()
@@ -32,7 +42,22 @@ export const getSinkInput = (requestId: number, sinkInput: number | string): PAP
   packet.putU32(typeof sinkInput === 'number' ? sinkInput : 0xFFFFFFFF)
   return packet
 }
+
 export const getSinkInputReply = (packet: PAPacket): SinkInput => {
   return PATag.toObject(packet.tags, sinkInputKeys)[0]
 }
 
+export const moveSinkInput = (requestId: number, sinkInput: number, destSink: number): PAPacket => {
+  const packet: PAPacket = new PAPacket()
+  packet.setCommand(PACommandType.PA_COMMAND_MOVE_SINK_INPUT)
+  packet.setRequestId(requestId)
+  packet.putU32(sinkInput)
+  packet.putU32(destSink)
+  packet.putString('')
+  return packet
+}
+
+export const moveSinkInputReply = (_packet: PAPacket): SinkInput => {
+  // Looks like the reply has no data
+  return { success: true }
+}

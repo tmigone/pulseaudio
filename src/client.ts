@@ -91,8 +91,18 @@ export default class PAClient extends EventEmitter {
     return this.sendRequest(query)
   }
 
+  getSinkInputs(): Promise<Sink[]> {
+    const query: PAPacket = PACommand.getSinkInputs(this.requestId())
+    return this.sendRequest(query)
+  }
+
   getSinkInput(sinkInput: number | string): Promise<SinkInput> {
     const query: PAPacket = PACommand.getSinkInput(this.requestId(), sinkInput)
+    return this.sendRequest(query)
+  }
+
+  moveSinkInput(sinkInput: number, destSink: number): Promise<any> {
+    const query: PAPacket = PACommand.moveSinkInput(this.requestId(), sinkInput, destSink)
     return this.sendRequest(query)
   }
 
@@ -202,6 +212,12 @@ export default class PAClient extends EventEmitter {
         break
       case PACommandType.PA_COMMAND_GET_SINK_INPUT_INFO:
         retObj = PAResponse.getSinkInputReply(reply)
+        break
+      case PACommandType.PA_COMMAND_GET_SINK_INPUT_INFO_LIST:
+        retObj = PAResponse.getSinkInputsReply(reply)
+        break
+      case PACommandType.PA_COMMAND_MOVE_SINK_INPUT:
+        retObj = PAResponse.moveSinkInputReply(reply)
         break
       default:
         throw new Error(`Command ${query.value} not supported. Please report issue.`)

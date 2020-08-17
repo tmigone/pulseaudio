@@ -4,7 +4,7 @@ import { setClientName, setClientNameReply } from './commands/clientName'
 import { getSinks, getSink, getSinksReply, getSinkReply, setSinkVolume, setSinkVolumeReply } from './commands/sink'
 import { subscribe, subscribeReply } from './commands/subscribe'
 import { serverInfo, serverInfoReply } from './commands/server'
-import { getSinkInput, getSinkInputReply } from './commands/sinkInput'
+import { getSinkInput, getSinkInputReply, getSinkInputs, getSinkInputsReply, moveSinkInput, moveSinkInputReply } from './commands/sinkInput'
 
 export { PACommandType }
 
@@ -15,9 +15,11 @@ export default {
   getSinks,
   getSink,
   getSinkInput,
+  getSinkInputs,
   subscribe,
   setSinkVolume,
   serverInfo,
+  moveSinkInput,
   
   // Replies
   setClientNameReply,
@@ -25,9 +27,11 @@ export default {
   getSinksReply,
   getSinkReply,
   getSinkInputReply,
+  getSinkInputsReply,
   subscribeReply,
   setSinkVolumeReply,
-  serverInfoReply
+  serverInfoReply,
+  moveSinkInputReply
 }
 
 
