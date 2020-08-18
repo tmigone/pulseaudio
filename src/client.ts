@@ -28,11 +28,11 @@ export default class PAClient extends EventEmitter {
 
   public pulseAddress: TCPSocket
   public pulseCookie: Buffer = Buffer.allocUnsafe(256)
+  public connected: boolean = false
   private socket: Socket
   private chunks: Buffer[] = []
   private requests: PARequest[] = []
   private lastRequestId: number = 0
-  private connected: boolean = false
 
   constructor(address: string, cookiePath?: string) {
     super()
