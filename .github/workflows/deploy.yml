@@ -1,0 +1,37 @@
+name: deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+
+  versionist:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout project code
+      uses: actions/checkout@v2
+    - name: Run balena-versionist
+      uses: tmigone/versionist@master
+      with:
+        github_email: 'tomasmigone@gmail.com'
+        github_username: 'Tomás Migone'
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+
+  publish:
+    needs: versionist
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout project code
+      uses: actions/checkout@v2
+    - name: Setup Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: '14.x'
+        registry-url: 'https://registry.npmjs.org'
+    - run: npm ci
+    - run: npm publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
