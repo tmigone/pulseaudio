@@ -8,6 +8,7 @@ on:
 jobs:
 
   versionist:
+    if: "!contains(github.event.head_commit.author.name, 'GITHUBACTION')"
     runs-on: ubuntu-latest
     steps:
     - name: Checkout project code
@@ -19,7 +20,7 @@ jobs:
       uses: tmigone/versionist@master
       with:
         github_email: 'tomasmigone@gmail.com'
-        github_username: 'Tomás Migone'
+        github_username: 'Tomás Migone (versionist)'
         github_token: ${{ secrets.GH_ADMIN_TOKEN }}
 
   publish:
