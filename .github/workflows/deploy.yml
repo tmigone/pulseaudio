@@ -19,7 +19,7 @@ jobs:
       with:
         github_email: 'tomasmigone@gmail.com'
         github_username: 'Tomás Migone'
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.GH_ADMIN_TOKEN }}
 
   publish:
     needs: versionist
