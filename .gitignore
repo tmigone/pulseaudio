@@ -108,3 +108,4 @@ build
 
 libs
 cookie
+test/docker/docker-compose.yml
