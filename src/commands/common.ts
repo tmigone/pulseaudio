@@ -1,5 +1,7 @@
 // PulseAudio commands
-// See https://github.com/pulseaudio/pulseaudio/blob/master/src/pulsecore/native-common.h
+// See: 
+// - command types --> https://github.com/pulseaudio/pulseaudio/blob/v15.0/src/pulsecore/native-common.h
+// - command implementation --> https://github.com/pulseaudio/pulseaudio/blob/v15.0/src/pulse/introspect.c
 
 export const enum PACommandType {
   /* Generic commands */
@@ -157,6 +159,9 @@ export const enum PACommandType {
   /* Supported since protocol v31 (9.0)
    * BOTH DIRECTIONS */
   PA_COMMAND_REGISTER_MEMFD_SHMID,
+
+  /* Supported since protocol v34 (14.0) */
+  PA_COMMAND_SEND_OBJECT_MESSAGE,
 
   PA_COMMAND_MAX
 }

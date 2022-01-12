@@ -7,7 +7,7 @@
   "scripts": {
     "clean": "rm -rf build",
     "build": "npm run clean && tsc --project tsconfig.publish.json",
-    "test": "ava test/*.ts",
+    "test": "ava",
     "test:tag": "ava test/tag.spec.ts",
     "test:packet": "ava test/packet.spec.ts",
     "test:command": "ava test/command.spec.ts",
@@ -43,6 +43,9 @@
     "typescript": "^3.9.5"
   },
   "ava": {
+    "files": [
+      "test/*.spec.ts"
+    ],
     "extensions": [
       "ts"
     ],
