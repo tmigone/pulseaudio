@@ -8,7 +8,7 @@ export default class PARequest {
   query: PAPacket
   reply: PAPacket
 
-  timeout: number = 3500
+  timeout: number = 3_500
   promise: Promise<any>
   resolve: (value?: any) => any
   reject: (value?: any) => any

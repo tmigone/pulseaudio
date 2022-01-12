@@ -21,6 +21,11 @@ import {
 } from './tag'
 import { ChannelVolume } from './types/pulseaudio'
 
+export interface TagIterator<T> extends Iterator<T> {
+  getNext(): any
+  done: boolean
+}
+
 export const PA_PACKET_HEADER: Buffer = Buffer.from([
   0xFF, 0xFF, 0xFF, 0xFF,
   0x00, 0x00, 0x00, 0x00,
@@ -235,5 +240,21 @@ export default class PAPacket {
 
   putChannelVolume(value: ChannelVolume): void {
     this.tags.push(new PAChannelVolume(value))
+  }
+
+  getTagsIterable(): TagIterator<PATag<any>> {
+    const iterator = this.tags.map(t => t.value)[Symbol.iterator]()
+    return { 
+      ...iterator,
+      getNext: function () {
+        if (this.done) {
+          throw new Error('TagIterator depleted!')
+        }
+        const next = iterator.next()
+        this.done = next.done
+        return next.value
+      },
+      done: false
+    }
   }
 }

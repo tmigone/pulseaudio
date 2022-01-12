@@ -12,15 +12,25 @@ export interface Sink {
   latency: BigInt,
   driverName: string,
   flagsRaw: number,
-  properties: [],
-  configLatency: BigInt,
-  baseVolume: number,
-  state: number,
-  volumeSteps: number,
-  cardIndex: number,
-  ports: number,
-  activePortName: string,
-  formats: Format[]
+  properties?: [],
+  configLatency?: BigInt,
+  baseVolume?: number,
+  state?: number,
+  volumeSteps?: number,
+  cardIndex?: number,
+  numberPorts: number,
+  ports?: SinkPort[],
+  activePortName?: string,
+  formats?: Format[]
+}
+
+export interface SinkPort {
+  name: string,
+  description: string,
+  priority: number,
+  availabe?: boolean,
+  availabilityGroup?: string,
+  type?: number
 }
 
 export interface SinkInput {

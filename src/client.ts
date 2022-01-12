@@ -4,7 +4,7 @@ import { Socket } from 'net'
 import PAPacket from './packet'
 import PARequest from './request'
 import { PATag } from './tag'
-import { PA_PROTOCOL_VERSION, PA_MAX_REQUEST_ID } from './protocol'
+import { PA_MAX_REQUEST_ID, PA_PROTOCOL_MINIMUM_VERSION } from './protocol'
 import PACommand, { PACommandType } from './command'
 import PAResponse from './response'
 import { PASubscriptionEventType, PAEvent } from './event'
@@ -33,6 +33,7 @@ export default class PAClient extends EventEmitter {
   private chunks: Buffer[] = []
   private requests: PARequest[] = []
   private lastRequestId: number = 0
+  private protocol: number = 0
 
   constructor(address: string, cookiePath?: string) {
     super()
@@ -50,9 +51,14 @@ export default class PAClient extends EventEmitter {
 
         // Authenticate client
         let reply: AuthInfo = await this.authenticate()
-        console.log(`Connected to PulseAudio at ${this.pulseAddress.host}:${this.pulseAddress.port}`)
-        console.log(`Server protocol version: ${reply.protocol}`)
-        console.log(`Client protocol version: ${PA_PROTOCOL_VERSION}`)
+        this.protocol = reply.protocol
+        console.log(`Connected to PulseAudio at ${this.pulseAddress.host}:${this.pulseAddress.port} using protocol v${this.protocol}`)
+
+        if (reply.protocol < PA_PROTOCOL_MINIMUM_VERSION) {
+          console.log(`Server protocol version is too low, please update to ${PA_PROTOCOL_MINIMUM_VERSION} or higher.`)
+          this.disconnect()
+          reject()
+        }
 
         resolve(reply)
       })
@@ -193,7 +199,7 @@ export default class PAClient extends EventEmitter {
   }
 
   private parseReply(reply: PAPacket, query: PATag<any>): any {
-    let retObj: object = {}
+    let retObj: any = {}
 
     switch (query.value) {
       case PACommandType.PA_COMMAND_AUTH:
@@ -203,13 +209,13 @@ export default class PAClient extends EventEmitter {
         retObj = PAResponse.setClientNameReply(reply)
         break
       case PACommandType.PA_COMMAND_GET_SINK_INFO_LIST:
-        retObj = PAResponse.getSinksReply(reply)
+        retObj = PAResponse.getSinksReply(reply, this.protocol)
         break
       case PACommandType.PA_COMMAND_GET_SINK_INFO:
-        retObj = PAResponse.getSinkReply(reply)
+        retObj = PAResponse.getSinkReply(reply, this.protocol)
         break
       case PACommandType.PA_COMMAND_SET_SINK_VOLUME:
-        retObj = PAResponse.setSinkVolumeReply(reply)
+        retObj = PAResponse.setSinkVolumeReply()
         break
       case PACommandType.PA_COMMAND_GET_SERVER_INFO:
         retObj = PAResponse.serverInfoReply(reply)
