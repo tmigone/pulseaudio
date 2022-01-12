@@ -61,6 +61,11 @@ export default class PAClient extends EventEmitter {
     })
   }
 
+  disconnect(): void {
+    this.socket.removeAllListeners()
+    this.socket.end()
+  }
+
   authenticate(): Promise<AuthInfo> {
     const query: PAPacket = PACommand.authenticate(this.requestId(), this.pulseCookie)
     return this.sendRequest(query)
@@ -116,6 +121,8 @@ export default class PAClient extends EventEmitter {
     // Don't read if we don't have at least 10 bytes
     if (this.socket.readableLength < 10) {
       console.log('Malformed packet!')
+      let malformed: Buffer = this.socket.read(this.socket.readableLength)
+      console.log(malformed);
       return
     }
 
