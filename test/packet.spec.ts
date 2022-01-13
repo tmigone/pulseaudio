@@ -1,12 +1,12 @@
 import test from 'ava'
 import PAPacket, { PA_PACKET_HEADER } from '../src/packet'
-import { PACommandType } from '../src/command'
+import { PA_NATIVE_COMMAND_NAMES } from '../src/command'
 import { PA_MAX_REQUEST_ID } from '../src/protocol'
 import { PAU32, PAArbitrary } from '../src/tag'
 
 const data = {
   requestId: Math.floor(Math.random() * PA_MAX_REQUEST_ID),
-  command: PACommandType.PA_COMMAND_AUTH
+  command: PA_NATIVE_COMMAND_NAMES.PA_COMMAND_AUTH
 }
 
 const packet: PAPacket = new PAPacket()
@@ -27,7 +27,7 @@ test(`Build packet from sections: tagSize`, t => {
 })
 
 test(`Build packet from sections: command`, t => {
-  t.is(packet.command.value, PACommandType.PA_COMMAND_AUTH)
+  t.is(packet.command.value, PA_NATIVE_COMMAND_NAMES.PA_COMMAND_AUTH)
 })
 
 test(`Build packet from sections: requestId`, t => {
@@ -51,7 +51,7 @@ test(`Build packet from buffer: tagSize`, t => {
 })
 
 test(`Build packet from buffer: command`, t => {
-  t.is(packetFromBuffer.command.value, PACommandType.PA_COMMAND_AUTH)
+  t.is(packetFromBuffer.command.value, PA_NATIVE_COMMAND_NAMES.PA_COMMAND_AUTH)
 })
 
 test(`Build packet from buffer: requestId`, t => {

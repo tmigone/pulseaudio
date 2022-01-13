@@ -1,4 +1,4 @@
-import { PACommandType } from '.'
+import { PA_NATIVE_COMMAND_NAMES } from '.'
 import PAPacket from '../packet'
 import { PATag } from '../tag'
 import { SinkInput } from '../types/pulseaudio'
@@ -26,7 +26,7 @@ const sinkInputKeys: string[] = [
 
 export const getSinkInputs = (requestId: number): PAPacket => {
   const packet: PAPacket = new PAPacket()
-  packet.setCommand(PACommandType.PA_COMMAND_GET_SINK_INPUT_INFO_LIST)
+  packet.setCommand(PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_SINK_INPUT_INFO_LIST)
   packet.setRequestId(requestId)
   return packet
 }
@@ -37,7 +37,7 @@ export const getSinkInputsReply = (packet: PAPacket): SinkInput[] => {
 
 export const getSinkInput = (requestId: number, sinkInput: number | string): PAPacket => {
   const packet: PAPacket = new PAPacket()
-  packet.setCommand(PACommandType.PA_COMMAND_GET_SINK_INPUT_INFO)
+  packet.setCommand(PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_SINK_INPUT_INFO)
   packet.setRequestId(requestId)
   packet.putU32(typeof sinkInput === 'number' ? sinkInput : 0xFFFFFFFF)
   return packet
@@ -49,7 +49,7 @@ export const getSinkInputReply = (packet: PAPacket): SinkInput => {
 
 export const moveSinkInput = (requestId: number, sinkInput: number, destSink: number): PAPacket => {
   const packet: PAPacket = new PAPacket()
-  packet.setCommand(PACommandType.PA_COMMAND_MOVE_SINK_INPUT)
+  packet.setCommand(PA_NATIVE_COMMAND_NAMES.PA_COMMAND_MOVE_SINK_INPUT)
   packet.setRequestId(requestId)
   packet.putU32(sinkInput)
   packet.putU32(destSink)

@@ -1,10 +1,18 @@
-import { PACommand, PACommandType } from '../'
 import PAPacket from '../../packet'
 import { Sink, SinkPort } from '../../types/pulseaudio'
-import { PA_NO_VALUE } from '../../protocol'
+
+import GetSink from './getSink'
+import GetSinks from './getSinks'
+import SetSinkVolume from './setSinkVolume'
+
+export {
+  GetSink,
+  GetSinks,
+  SetSinkVolume
+}
 
 // https://github.com/pulseaudio/pulseaudio/blob/v15.0/src/pulse/introspect.c#L136
-const parseSinks = (packet: PAPacket, protocol: number): Sink[] => {
+export const parseSinks = (packet: PAPacket, protocol: number): Sink[] => {
   const sinks: Sink[] = []
   const tags = packet.getTagsIterable()
 
@@ -54,21 +62,4 @@ const parseSinks = (packet: PAPacket, protocol: number): Sink[] => {
   }
 
   return sinks
-}
-
-const query = (requestId: number, sink: number | string): PAPacket => {
-  const packet: PAPacket = new PAPacket()
-  packet.setCommand(PACommandType.PA_COMMAND_GET_SINK_INFO)
-  packet.setRequestId(requestId)
-  packet.putU32(typeof sink === 'number' ? sink : PA_NO_VALUE)
-  packet.putString(typeof sink === 'string' ? sink : '')
-  return packet
-}
-const reply = (packet: PAPacket, protocol: number): Sink => {
-  return parseSinks(packet, protocol)[0]
-}
-
-export const GetSink: PACommand<Sink> = {
-  query,
-  reply
 }

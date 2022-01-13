@@ -5,7 +5,7 @@ import PAPacket from './packet'
 import PARequest from './request'
 import { PATag } from './tag'
 import { PA_MAX_REQUEST_ID, PA_PROTOCOL_MINIMUM_VERSION } from './protocol'
-import PACommand, { PACommandType } from './command'
+import PACommand, { PA_NATIVE_COMMAND_NAMES } from './command'
 import PAResponse from './response'
 import { PASubscriptionEventType, PAEvent } from './event'
 import { PAError } from './error'
@@ -19,7 +19,6 @@ import {
   VolumeInfo
 } from './types/pulseaudio'
 
-// import { GetSink } from './commands/sink/get'
 import { PACommandList } from './commands'
 
 interface TCPSocket {
@@ -48,6 +47,7 @@ export default class PAClient extends EventEmitter {
   connect(): Promise<AuthInfo> {
     return new Promise<AuthInfo>((resolve, reject) => {
       this.socket = new Socket()
+      this.socket.setTimeout(5_000)
       this.socket.connect(this.pulseAddress.port, this.pulseAddress.host)
       this.socket.on('connect', async () => {
         this.connected = true
@@ -67,6 +67,10 @@ export default class PAClient extends EventEmitter {
       })
       this.socket.on('readable', this.onReadable.bind(this))
       this.socket.on('error', reject)
+      this.socket.on('timeout', () => {
+        console.log(`Socket timed out! Cannot reach PulseAudio server at ${this.pulseAddress.host}:${this.pulseAddress.port}`)
+        this.disconnect()
+      });
     })
   }
 
@@ -96,13 +100,12 @@ export default class PAClient extends EventEmitter {
   }
 
   getSinks(): Promise<Sink[]> {
-    const query: PAPacket = PACommand.getSinks(this.requestId())
+    const query: PAPacket = PACommandList.GetSinks.query(this.requestId())
     return this.sendRequest(query)
   }
 
   getSink(sink: number | string): Promise<Sink> {
     const query: PAPacket = PACommandList.GetSink.query(this.requestId(), sink)
-    // const query: PAPacket = PACommand.getSink(this.requestId(), sink)
     return this.sendRequest(query)
   }
 
@@ -122,7 +125,7 @@ export default class PAClient extends EventEmitter {
   }
 
   setSinkVolume(sink: number | string, volume: number): Promise<VolumeInfo> {
-    const query: PAPacket = PACommand.setSinkVolume(this.requestId(), sink, { channels: 2, volumes: [volume, volume] })
+    const query: PAPacket = PACommandList.SetSinkVolume.query(this.requestId(), sink, { channels: 2, volumes: [volume, volume] })
     return this.sendRequest(query)
   }
 
@@ -166,7 +169,7 @@ export default class PAClient extends EventEmitter {
     const request: PARequest = new PARequest(this.lastRequestId, query)
     this.requests.push(request)
 
-    if (!this.connected && query.command.value !== PACommandType.PA_COMMAND_AUTH.toString().charCodeAt(0)) {
+    if (!this.connected && query.command.value !== PA_NATIVE_COMMAND_NAMES.PA_COMMAND_AUTH.toString().charCodeAt(0)) {
       return this.rejectRequest(request, new Error('No connection to PulseAudio.'))
     }
 
@@ -177,17 +180,17 @@ export default class PAClient extends EventEmitter {
   private resolveRequest(reply: PAPacket): void {
     let request: PARequest | undefined
     switch (reply.command.value) {
-      case PACommandType.PA_COMMAND_ERROR:
+      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_ERROR:
         request = this.requests.find(r => r.id === reply.requestId.value)
         request?.resolve({ success: false, error: PAError[reply.tags[0].value] })
         this.requests = this.requests.filter(r => r.id !== reply.requestId.value)
         break
-      case PACommandType.PA_COMMAND_REPLY:
+      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_REPLY:
         request = this.requests.find(r => r.id === reply.requestId.value)
         request?.resolve(this.parseReply(reply, request.query.command))
         this.requests = this.requests.filter(r => r.id !== reply.requestId.value)
         break
-      case PACommandType.PA_COMMAND_SUBSCRIBE_EVENT:
+      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_SUBSCRIBE_EVENT:
         const event: PAEvent = this.parseEvent(reply)
         this.emit(event.category, event)
         this.emit('all', event)
@@ -206,35 +209,34 @@ export default class PAClient extends EventEmitter {
     let retObj: any = {}
 
     switch (query.value) {
-      case PACommandType.PA_COMMAND_AUTH:
+      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_AUTH:
         retObj = PAResponse.authenticateReply(reply)
         break
-      case PACommandType.PA_COMMAND_SET_CLIENT_NAME:
+      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_SET_CLIENT_NAME:
         retObj = PAResponse.setClientNameReply(reply)
         break
-      case PACommandType.PA_COMMAND_GET_SINK_INFO_LIST:
-        retObj = PAResponse.getSinksReply(reply, this.protocol)
+      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_SINK_INFO_LIST:
+        retObj = PACommandList.GetSinks.reply(reply, this.protocol)
         break
-      case PACommandType.PA_COMMAND_GET_SINK_INFO:
+      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_SINK_INFO:
         retObj = PACommandList.GetSink.reply(reply, this.protocol)
-        // retObj = PAResponse.getSinkReply(reply, this.protocol)
         break
-      case PACommandType.PA_COMMAND_SET_SINK_VOLUME:
-        retObj = PAResponse.setSinkVolumeReply()
+      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_SET_SINK_VOLUME:
+        retObj = PACommandList.SetSinkVolume.reply(reply, this.protocol)
         break
-      case PACommandType.PA_COMMAND_GET_SERVER_INFO:
+      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_SERVER_INFO:
         retObj = PAResponse.serverInfoReply(reply)
         break
-      case PACommandType.PA_COMMAND_SUBSCRIBE:
+      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_SUBSCRIBE:
         retObj = PAResponse.subscribeReply()
         break
-      case PACommandType.PA_COMMAND_GET_SINK_INPUT_INFO:
+      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_SINK_INPUT_INFO:
         retObj = PAResponse.getSinkInputReply(reply)
         break
-      case PACommandType.PA_COMMAND_GET_SINK_INPUT_INFO_LIST:
+      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_SINK_INPUT_INFO_LIST:
         retObj = PAResponse.getSinkInputsReply(reply)
         break
-      case PACommandType.PA_COMMAND_MOVE_SINK_INPUT:
+      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_MOVE_SINK_INPUT:
         retObj = PAResponse.moveSinkInputReply(reply)
         break
       default:

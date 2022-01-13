@@ -1,4 +1,4 @@
-import { PACommandType } from '.'
+import { PA_NATIVE_COMMAND_NAMES } from '.'
 import PAPacket from '../packet'
 import { PATag } from '../tag'
 import { ServerInfo } from '../types/pulseaudio'
@@ -17,7 +17,7 @@ const serverKeys: string[] = [
 
 export const serverInfo = (requestId: number): PAPacket => {
   const packet: PAPacket = new PAPacket()
-  packet.setCommand(PACommandType.PA_COMMAND_GET_SERVER_INFO)
+  packet.setCommand(PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_SERVER_INFO)
   packet.setRequestId(requestId)
   return packet
 }
