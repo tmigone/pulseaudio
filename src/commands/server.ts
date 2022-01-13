@@ -1,5 +1,5 @@
+import { PACommandType } from '.'
 import PAPacket from '../packet'
-import { PACommandType } from './common'
 import { PATag } from '../tag'
 import { ServerInfo } from '../types/pulseaudio'
 

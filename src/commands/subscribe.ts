@@ -1,5 +1,5 @@
+import { PACommandType } from '.'
 import PAPacket from '../packet'
-import { PACommandType } from './common'
 import { PASubscriptionMask } from '../event'
 import { SubscribeInfo } from '../types/pulseaudio'
 

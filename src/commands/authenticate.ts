@@ -1,5 +1,5 @@
+import { PACommandType } from '.'
 import PAPacket from '../packet'
-import { PACommandType } from './common'
 import { PA_PROTOCOL_VERSION } from '../protocol'
 import { AuthInfo } from '../types/pulseaudio'
 

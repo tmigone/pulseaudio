@@ -1,5 +1,5 @@
+import { PACommandType } from '.'
 import PAPacket from '../packet'
-import { PACommandType } from './common'
 import { ClientInfo } from '../types/pulseaudio'
 
 export const setClientName = (requestId: number, clientName: string = 'palib-client'): PAPacket => {

@@ -1,5 +1,5 @@
+import { PACommandType } from '.'
 import PAPacket from '../packet'
-import { PACommandType } from './common'
 import { PATag } from '../tag'
 import { SinkInput } from '../types/pulseaudio'
 
@@ -7,20 +7,20 @@ const sinkInputKeys: string[] = [
   'index',
   'name',
   'ownerModule',
-  'unknown0',         // Unknowns
+  'unknown0', // Unknowns
   'sinkIndex',
   'sampleSpec',
   'channelMap',
   'channelVolumes',
-  'unknown1',         // Unknowns
-  'unknown2',         // Unknowns
+  'unknown1', // Unknowns
+  'unknown2', // Unknowns
   'resampleMethod',
   'driverName',
-  'unknown3',         // Unknowns
+  'unknown3', // Unknowns
   'properties',
-  'unknown4',         // Unknowns
-  'unknown5',         // Unknowns
-  'unknown6',         // Unknowns
+  'unknown4', // Unknowns
+  'unknown5', // Unknowns
+  'unknown6', // Unknowns
   'format'
 ]
 

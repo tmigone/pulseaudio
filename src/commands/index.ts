@@ -1,7 +1,19 @@
 // PulseAudio commands
-// See: 
+// See:
 // - command types --> https://github.com/pulseaudio/pulseaudio/blob/v15.0/src/pulsecore/native-common.h
 // - command implementation --> https://github.com/pulseaudio/pulseaudio/blob/v15.0/src/pulse/introspect.c
+
+import PAPacket from '../packet'
+import { GetSink } from './sink/get'
+
+export const PACommandList: Record<string, PACommand<any>> = {
+  GetSink
+}
+
+export interface PACommand<T> {
+  query: (requestId: number, ...args: any[]) => PAPacket
+  reply: (packet: PAPacket, protocol: number) => T
+}
 
 export const enum PACommandType {
   /* Generic commands */
@@ -10,9 +22,9 @@ export const enum PACommandType {
   PA_COMMAND_REPLY,
 
   /* CLIENT->SERVER */
-  PA_COMMAND_CREATE_PLAYBACK_STREAM,        /* Payload changed in v9, v12 (0.9.0, 0.9.8) */
+  PA_COMMAND_CREATE_PLAYBACK_STREAM, /* Payload changed in v9, v12 (0.9.0, 0.9.8) */
   PA_COMMAND_DELETE_PLAYBACK_STREAM,
-  PA_COMMAND_CREATE_RECORD_STREAM,          /* Payload changed in v9, v12 (0.9.0, 0.9.8) */
+  PA_COMMAND_CREATE_RECORD_STREAM, /* Payload changed in v9, v12 (0.9.0, 0.9.8) */
   PA_COMMAND_DELETE_RECORD_STREAM,
   PA_COMMAND_EXIT,
   PA_COMMAND_AUTH,
@@ -37,8 +49,8 @@ export const enum PACommandType {
   PA_COMMAND_GET_MODULE_INFO_LIST,
   PA_COMMAND_GET_CLIENT_INFO,
   PA_COMMAND_GET_CLIENT_INFO_LIST,
-  PA_COMMAND_GET_SINK_INPUT_INFO,          /* Payload changed in v11 (0.9.7) */
-  PA_COMMAND_GET_SINK_INPUT_INFO_LIST,     /* Payload changed in v11 (0.9.7) */
+  PA_COMMAND_GET_SINK_INPUT_INFO, /* Payload changed in v11 (0.9.7) */
+  PA_COMMAND_GET_SINK_INPUT_INFO_LIST, /* Payload changed in v11 (0.9.7) */
   PA_COMMAND_GET_SOURCE_OUTPUT_INFO,
   PA_COMMAND_GET_SOURCE_OUTPUT_INFO_LIST,
   PA_COMMAND_GET_SAMPLE_INFO,
