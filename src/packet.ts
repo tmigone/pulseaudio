@@ -2,6 +2,7 @@
 // https://github.com/pulseaudio/pulseaudio/blob/master/src/pulsecore/tagstruct.h
 // https://github.com/pulseaudio/pulseaudio/blob/master/src/pulsecore/tagstruct.c
 
+import { createIterator, Iterator } from './iterator'
 import {
   PATag,
   PATagType,
@@ -20,11 +21,6 @@ import {
   PAU8
 } from './tag'
 import { ChannelVolume } from './types/pulseaudio'
-
-export interface TagIterator<T> extends Iterator<T> {
-  getNext(): any
-  done: boolean
-}
 
 export const PA_PACKET_HEADER: Buffer = Buffer.from([
   0xFF, 0xFF, 0xFF, 0xFF,
@@ -242,19 +238,7 @@ export default class PAPacket {
     this.tags.push(new PAChannelVolume(value))
   }
 
-  getTagsIterable(): TagIterator<PATag<any>> {
-    const iterator = this.tags.map(t => t.value)[Symbol.iterator]()
-    return { 
-      ...iterator,
-      getNext: function () {
-        if (this.done) {
-          throw new Error('TagIterator depleted!')
-        }
-        const next = iterator.next()
-        this.done = next.done
-        return next.value
-      },
-      done: false
-    }
+  getTagsIterable(): Iterator<PATag<any>> {
+    return createIterator(this.tags.map(t => t.value))
   }
 }

@@ -20,15 +20,15 @@ Supported device types:
 ## Usage
 ### 1. Create PulseAudio releases
 
-The `deploy-to-balena.sh` script will create and tag releases for all available PulseAudio versions. Run it manually with:
+The `test/e2e/deploy-to-balena.sh` script will create and tag releases for all available PulseAudio versions. Run it manually with:
 
 ```bash
-chmod +x deploy-to-balena.sh
-./deploy-to-balena.sh
+chmod +x test/e2e/deploy-to-balena.sh
+./test/e2e/deploy-to-balena.sh
 ```
 
 Once the script is done, you should see the releases listed on the `Releases` page on your fleet, notice the tags indicating the PulseAudio version:
-![](releases.png)
+![](../assets/releases.png)
 
 ### 2. Provision devices
 
@@ -37,4 +37,4 @@ You'll need to provision one device for each version of PulseAudio you want to s
 ### 3. Pin devices to a release
 
 Lastly, you'll need to pin the devices to the releases you created. Here is a [quick guide](https://www.balena.io/docs/learn/deploy/release-strategy/release-policy/#pin-device-to-a-release) on how to do it. Make sure you pin one device for each different release (PulseAudio version) you are interested in.
-![](pin.png)
+![](../assets/pin.png)
