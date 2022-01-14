@@ -21,7 +21,7 @@ import { JSONStringify } from '../../src/utils/bigInt'
   process.env.DEBUG_PRINT = 'true'
 
   // 
-  const data = await client.moveSinkInput(0, 0) // Edit command here
+  const data = await client.setClientName('patest-client') // Edit command here
   // 
 
   fs.writeFileSync('PACommand.data', JSONStringify(data))

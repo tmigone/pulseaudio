@@ -21,6 +21,7 @@ import {
 
 import { GetSink, GetSinkList, SetSinkVolume } from './commands/sink'
 import { GetSinkInput, GetSinkInputList, MoveSinkInput } from './commands/sinkInput'
+import { SetClientName } from './commands/client'
 
 interface TCPSocket {
   port: number
@@ -91,7 +92,7 @@ export default class PAClient extends EventEmitter {
   }
 
   setClientName(clientName?: string): Promise<ClientInfo> {
-    const query: PAPacket = PACommand.setClientName(this.requestId(), clientName)
+    const query: PAPacket = SetClientName.query(this.requestId(), clientName)
     return this.sendRequest(query)
   }
 
@@ -100,13 +101,18 @@ export default class PAClient extends EventEmitter {
     return this.sendRequest(query)
   }
 
+  getSink(sink: number | string): Promise<Sink> {
+    const query: PAPacket = GetSink.query(this.requestId(), sink)
+    return this.sendRequest(query)
+  }
+
   getSinkList(): Promise<Sink[]> {
     const query: PAPacket = GetSinkList.query(this.requestId())
     return this.sendRequest(query)
   }
 
-  getSink(sink: number | string): Promise<Sink> {
-    const query: PAPacket = GetSink.query(this.requestId(), sink)
+  setSinkVolume(sink: number | string, volume: number): Promise<VolumeInfo> {
+    const query: PAPacket = SetSinkVolume.query(this.requestId(), sink, { channels: 2, volumes: [volume, volume] })
     return this.sendRequest(query)
   }
 
@@ -125,10 +131,7 @@ export default class PAClient extends EventEmitter {
     return this.sendRequest(query)
   }
 
-  setSinkVolume(sink: number | string, volume: number): Promise<VolumeInfo> {
-    const query: PAPacket = SetSinkVolume.query(this.requestId(), sink, { channels: 2, volumes: [volume, volume] })
-    return this.sendRequest(query)
-  }
+
 
   // Private methods
   private onReadable(): void {
@@ -214,7 +217,7 @@ export default class PAClient extends EventEmitter {
         retObj = PAResponse.authenticateReply(reply)
         break
       case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_SET_CLIENT_NAME:
-        retObj = PAResponse.setClientNameReply(reply)
+        retObj = SetClientName.reply(reply, this.protocol)
         break
       case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_SINK_INFO_LIST:
         retObj = GetSinkList.reply(reply, this.protocol)
