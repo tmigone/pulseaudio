@@ -1,6 +1,6 @@
 import test from 'ava'
+import { PA_NATIVE_COMMAND_NAMES } from '../src/commands'
 import PAPacket, { PA_PACKET_HEADER } from '../src/packet'
-import { PA_NATIVE_COMMAND_NAMES } from '../src/command'
 import { PA_MAX_REQUEST_ID } from '../src/protocol'
 import { PAU32, PAArbitrary } from '../src/tag'
 

@@ -5,8 +5,6 @@ import PAPacket from './packet'
 import PARequest from './request'
 import { PATag } from './tag'
 import { PA_MAX_REQUEST_ID, PA_PROTOCOL_MINIMUM_VERSION } from './protocol'
-import PACommand, { PA_NATIVE_COMMAND_NAMES } from './command'
-import PAResponse from './response'
 import { PASubscriptionEventType, PAEvent } from './event'
 import { PAError } from './error'
 import {
@@ -19,9 +17,11 @@ import {
   VolumeInfo
 } from './types/pulseaudio'
 
+import { PA_NATIVE_COMMAND_NAMES } from './commands'
 import { GetSink, GetSinkList, SetSinkVolume } from './commands/sink'
 import { GetSinkInput, GetSinkInputList, MoveSinkInput } from './commands/sinkInput'
 import { SetClientName } from './commands/client'
+import { Authenticate, GetServerInfo, Subscribe } from './commands/server'
 
 interface TCPSocket {
   port: number
@@ -82,12 +82,12 @@ export default class PAClient extends EventEmitter {
   }
 
   authenticate(): Promise<AuthInfo> {
-    const query: PAPacket = PACommand.authenticate(this.requestId(), this.pulseCookie)
+    const query: PAPacket = Authenticate.query(this.requestId(), this.pulseCookie)
     return this.sendRequest(query)
   }
 
   subscribe(): Promise<SubscribeInfo> {
-    const query: PAPacket = PACommand.subscribe(this.requestId())
+    const query: PAPacket = Subscribe.query(this.requestId())
     return this.sendRequest(query)
   }
 
@@ -97,7 +97,7 @@ export default class PAClient extends EventEmitter {
   }
 
   getServerInfo(): Promise<ServerInfo> {
-    const query: PAPacket = PACommand.serverInfo(this.requestId())
+    const query: PAPacket = GetServerInfo.query(this.requestId())
     return this.sendRequest(query)
   }
 
@@ -214,8 +214,14 @@ export default class PAClient extends EventEmitter {
 
     switch (query.value) {
       case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_AUTH:
-        retObj = PAResponse.authenticateReply(reply)
+        retObj = Authenticate.reply(reply, this.protocol)
         break
+      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_SERVER_INFO:
+        retObj = GetServerInfo.reply(reply, this.protocol)
+        break
+      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_SUBSCRIBE:
+        retObj = Subscribe.reply(reply, this.protocol)
+        break        
       case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_SET_CLIENT_NAME:
         retObj = SetClientName.reply(reply, this.protocol)
         break
@@ -237,13 +243,6 @@ export default class PAClient extends EventEmitter {
       case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_MOVE_SINK_INPUT:
         retObj = MoveSinkInput.reply(reply, this.protocol)
         break
-      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_SERVER_INFO:
-        retObj = PAResponse.serverInfoReply(reply)
-        break
-      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_SUBSCRIBE:
-        retObj = PAResponse.subscribeReply()
-        break
-
       default:
         throw new Error(`Command ${query.value} not supported. Please report issue.`)
     }

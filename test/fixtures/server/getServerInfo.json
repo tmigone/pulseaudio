@@ -1,0 +1,16 @@
+{
+  "queryParameters": [2, "patest-client"],
+  "queryBuffer": "0000000affffffff0000000000000000000000004c000000144c00000002",
+  "replyBuffer": "0000009cffffffff0000000000000000000000004c000000024c000000027470756c7365617564696f007431332e300074726f6f740074373839323634626531316636006103020000ac4474616c73615f6f75747075742e62636d323833352d6a61636b2e73746572656f2d66616c6c6261636b0074616c73615f6f75747075742e62636d323833352d6a61636b2e73746572656f2d66616c6c6261636b2e6d6f6e69746f72004c7204eaf46d020102",
+  "replyObject": {
+    "name": "pulseaudio",
+    "version": "13.0",
+    "user": "root",
+    "hostname": "789264be11f6",
+    "sampleSpec": { "format": 3, "channels": 2, "rate": 44100 },
+    "defaultSink": "alsa_output.bcm2835-jack.stereo-fallback",
+    "defaultSource": "alsa_output.bcm2835-jack.stereo-fallback.monitor",
+    "cookie": 1912924916,
+    "channelMap": { "channels": 2, "types": [1, 2] }
+  }
+}
