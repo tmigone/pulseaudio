@@ -24,7 +24,7 @@ export const parseSinkPacket = (packet: PAPacket, protocol: number): Sink[] => {
       sampleSpec: tags.nextValue(),
       channelMap: tags.nextValue(),
       moduleIndex: tags.nextValue(),
-      channelVolumes: tags.nextValue(),
+      channelVolume: tags.nextValue(),
       isMuted: tags.nextValue(),
       monitorSourceIndex: tags.nextValue(),
       monitorSourceName: tags.nextValue(),

@@ -18,7 +18,11 @@ const query = (requestId: number, sink: number | string): PAPacket => {
 }
 
 const reply = (packet: PAPacket, protocol: number): Sink => {
-  return parseSinkPacket(packet, protocol)[0]
+  const sinks = parseSinkPacket(packet, protocol)
+  if (sinks.length !== 1) {
+    throw new Error("Expected exactly one sink!")
+  }
+  return sinks[0]
 }
 
 const GetSink: GetSink = {

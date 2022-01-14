@@ -20,6 +20,7 @@ import {
 } from './types/pulseaudio'
 
 import { GetSink, GetSinkList, SetSinkVolume } from './commands/sink'
+import { GetSinkInput, GetSinkInputList, MoveSinkInput } from './commands/sinkInput'
 
 interface TCPSocket {
   port: number
@@ -99,7 +100,7 @@ export default class PAClient extends EventEmitter {
     return this.sendRequest(query)
   }
 
-  getSinks(): Promise<Sink[]> {
+  getSinkList(): Promise<Sink[]> {
     const query: PAPacket = GetSinkList.query(this.requestId())
     return this.sendRequest(query)
   }
@@ -109,18 +110,18 @@ export default class PAClient extends EventEmitter {
     return this.sendRequest(query)
   }
 
-  getSinkInputs(): Promise<Sink[]> {
-    const query: PAPacket = PACommand.getSinkInputs(this.requestId())
+  getSinkInputList(): Promise<Sink[]> {
+    const query: PAPacket = GetSinkInputList.query(this.requestId())
     return this.sendRequest(query)
   }
 
   getSinkInput(sinkInput: number | string): Promise<SinkInput> {
-    const query: PAPacket = PACommand.getSinkInput(this.requestId(), sinkInput)
+    const query: PAPacket = GetSinkInput.query(this.requestId(), sinkInput)
     return this.sendRequest(query)
   }
 
   moveSinkInput(sinkInput: number, destSink: number): Promise<any> {
-    const query: PAPacket = PACommand.moveSinkInput(this.requestId(), sinkInput, destSink)
+    const query: PAPacket = MoveSinkInput.query(this.requestId(), sinkInput, destSink)
     return this.sendRequest(query)
   }
 
@@ -224,21 +225,22 @@ export default class PAClient extends EventEmitter {
       case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_SET_SINK_VOLUME:
         retObj = SetSinkVolume.reply(reply, this.protocol)
         break
+      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_SINK_INPUT_INFO:
+        retObj = GetSinkInput.reply(reply, this.protocol)
+        break
+      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_SINK_INPUT_INFO_LIST:
+        retObj = GetSinkInputList.reply(reply, this.protocol)
+        break
+      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_MOVE_SINK_INPUT:
+        retObj = MoveSinkInput.reply(reply, this.protocol)
+        break
       case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_SERVER_INFO:
         retObj = PAResponse.serverInfoReply(reply)
         break
       case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_SUBSCRIBE:
         retObj = PAResponse.subscribeReply()
         break
-      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_SINK_INPUT_INFO:
-        retObj = PAResponse.getSinkInputReply(reply)
-        break
-      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_SINK_INPUT_INFO_LIST:
-        retObj = PAResponse.getSinkInputsReply(reply)
-        break
-      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_MOVE_SINK_INPUT:
-        retObj = PAResponse.moveSinkInputReply(reply)
-        break
+
       default:
         throw new Error(`Command ${query.value} not supported. Please report issue.`)
     }

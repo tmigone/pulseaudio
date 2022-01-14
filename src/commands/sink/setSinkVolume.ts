@@ -7,7 +7,7 @@ interface SetSinkVolume extends PACommand<VolumeInfo> {
   query (requestId: number, sink: number | string, channelVolumes: ChannelVolume): PAPacket
 }
 
-export const query = (requestId: number, sink: number | string, channelVolumes: ChannelVolume): PAPacket => {
+const query = (requestId: number, sink: number | string, channelVolumes: ChannelVolume): PAPacket => {
   const packet: PAPacket = new PAPacket()
   packet.setCommand(PA_NATIVE_COMMAND_NAMES.PA_COMMAND_SET_SINK_VOLUME)
   packet.setRequestId(requestId)
@@ -17,7 +17,7 @@ export const query = (requestId: number, sink: number | string, channelVolumes: 
   return packet
 }
 
-export const reply = (_packet: PAPacket, _protocol: number): VolumeInfo => {
+const reply = (_packet: PAPacket, _protocol: number): VolumeInfo => {
   // Looks like the reply has no data?
   return { success: true }
 }

@@ -1,57 +1,44 @@
-import { PA_NATIVE_COMMAND_NAMES } from '.'
-import PAPacket from '../packet'
-import { PATag } from '../tag'
-import { SinkInput } from '../types/pulseaudio'
+import PAPacket from '../../packet'
+import { SinkInput } from '../../types/pulseaudio'
 
+import GetSinkInput from './getSinkInput'
+import GetSinkInputList from './getSinkInputList'
+import MoveSinkInput from './moveSinkInput'
 
-export const parseSinkPacket = (packet: PAPacket, protocol: number): Sink[] => {
-  const sinks: Sink[] = []
+export {
+  GetSinkInput,
+  GetSinkInputList,
+  MoveSinkInput
+}
+
+export const parseSinkInputPacket = (packet: PAPacket): SinkInput[] => {
+  const sinkInputs: SinkInput[] = []
   const tags = packet.getTagsIterable()
 
   while (!tags.done) {
-    const sink: Sink = {
+    const sinkInput: SinkInput = {
       index: tags.nextValue(),
       name: tags.nextValue(),
-      description: tags.nextValue(),
+      moduleIndex: tags.nextValue(),
+      clientIndex: tags.nextValue(),
+      sinkIndex: tags.nextValue(),
       sampleSpec: tags.nextValue(),
       channelMap: tags.nextValue(),
-      moduleIndex: tags.nextValue(),
-      channelVolumes: tags.nextValue(),
-      isMuted: tags.nextValue(),
-      monitorSourceIndex: tags.nextValue(),
-      monitorSourceName: tags.nextValue(),
-      latency: tags.nextValue(),
+      channelVolume: tags.nextValue(),
+      bufferLatency: tags.nextValue(),
+      sinkLatency: tags.nextValue(),
+      resampleMethod: tags.nextValue(),
       driverName: tags.nextValue(),
-      flagsRaw: tags.nextValue(),
+      isMuted: tags.nextValue(),
       properties: tags.nextValue(),
-      configLatency: tags.nextValue(),
-      baseVolume: tags.nextValue(),
-      state: tags.nextValue(),
-      volumeSteps: tags.nextValue(),
-      cardIndex: tags.nextValue(),
-      numberPorts: tags.nextValue()
+      isCorked: tags.nextValue(),
+      hasVolume: tags.nextValue(),
+      isVolumeWritable: tags.nextValue(),
+      format: tags.nextValue()
     }
 
-    sink.ports = []
-    for (let sinkIndex = 0; sinkIndex < sink.numberPorts; sinkIndex++) {
-      const port: SinkPort = {
-        name: tags.nextValue(),
-        description: tags.nextValue(),
-        priority: tags.nextValue(),
-        availabe: tags.nextValue()
-      }
-
-      if (protocol >= 34) {
-        port.availabilityGroup = tags.nextValue()
-        port.type = tags.nextValue()
-      }
-    }
-
-    sink.activePortName = tags.nextValue()
-    sink.formats = tags.nextValue()
-
-    sinks.push(sink)
+    sinkInputs.push(sinkInput)
   }
 
-  return sinks
+  return sinkInputs
 }

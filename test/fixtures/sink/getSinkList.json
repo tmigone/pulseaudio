@@ -10,7 +10,7 @@
       "sampleSpec": { "format": 3, "channels": 2, "rate": 44100 },
       "channelMap": { "channels": 2, "types": [1, 2] },
       "moduleIndex": 6,
-      "channelVolumes": { "channels": 2, "volumes": [49152, 49152] },
+      "channelVolume": { "channels": 2, "volumes": [49152, 49152] },
       "isMuted": false,
       "monitorSourceIndex": 0,
       "monitorSourceName": "alsa_output.bcm2835-jack.stereo-fallback.monitor",

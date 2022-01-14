@@ -38,3 +38,14 @@ You'll need to provision one device for each version of PulseAudio you want to s
 
 Lastly, you'll need to pin the devices to the releases you created. Here is a [quick guide](https://www.balena.io/docs/learn/deploy/release-strategy/release-policy/#pin-device-to-a-release) on how to do it. Make sure you pin one device for each different release (PulseAudio version) you are interested in.
 ![](../assets/pin.png)
+
+### 4. Update .env file on your root directory
+
+Update your `.env` file with the IP address of your servers. See `.env.example` for an example:
+
+```
+PULSE_SERVER_V13=tcp:192.168.1.4:4317
+PULSE_SERVER_V15=tcp:192.168.1.5:4317
+```
+
+
