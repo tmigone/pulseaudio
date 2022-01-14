@@ -38,13 +38,14 @@
   "devDependencies": {
     "@types/node": "^14.0.13",
     "ava": "^3.8.2",
+    "dotenv": "^11.0.0",
     "nodemon": "^2.0.4",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.5"
   },
   "ava": {
     "files": [
-      "test/*.spec.ts"
+      "test/**/*.spec.ts"
     ],
     "extensions": [
       "ts"

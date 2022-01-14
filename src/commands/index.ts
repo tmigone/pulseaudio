@@ -4,17 +4,10 @@
 // - command implementation --> https://github.com/pulseaudio/pulseaudio/blob/v15.0/src/pulse/introspect.c
 
 import PAPacket from '../packet'
-import { GetSink, GetSinks, SetSinkVolume } from './sink'
 
 export interface PACommand<T> {
   query: (requestId: number, ...args: any[]) => PAPacket
   reply: (packet: PAPacket, protocol: number) => T
-}
-
-export const PACommandList: Record<string, PACommand<any>> = {
-  GetSink,
-  GetSinks,
-  SetSinkVolume
 }
 
 export const enum PA_NATIVE_COMMAND_NAMES {

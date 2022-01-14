@@ -1,7 +1,13 @@
+require('dotenv').config()
 import PAClient from '../../src/client'
 
 (async () => {
-  const client: PAClient = new PAClient('tcp:192.168.90.115:4317')
+  const { PULSE_SERVER_V13 } = process.env
+  if (PULSE_SERVER_V13 === undefined) {
+    throw new Error('PULSE_SERVER_V13 environment variable is not set')
+  }
+
+  const client: PAClient = new PAClient(PULSE_SERVER_V13)
   await client.connect()
   console.log(await client.getSinks())
   console.log(await client.getSink(0))

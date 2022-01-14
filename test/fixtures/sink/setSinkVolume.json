@@ -1,0 +1,6 @@
+{
+  "queryParameters": [2, 0, { "channels": 2, "volumes": [90, 90] }],
+  "queryBuffer": "0000001affffffff0000000000000000000000004c000000244c000000024c000000004e76020000005a0000005a",
+  "replyBuffer": "0000000affffffff0000000000000000000000004c000000024c00000002",
+  "replyObject": { "success": true }
+}

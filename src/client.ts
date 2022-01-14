@@ -19,7 +19,7 @@ import {
   VolumeInfo
 } from './types/pulseaudio'
 
-import { PACommandList } from './commands'
+import { GetSink, GetSinks, SetSinkVolume } from './commands/sink'
 
 interface TCPSocket {
   port: number
@@ -100,12 +100,12 @@ export default class PAClient extends EventEmitter {
   }
 
   getSinks(): Promise<Sink[]> {
-    const query: PAPacket = PACommandList.GetSinks.query(this.requestId())
+    const query: PAPacket = GetSinks.query(this.requestId())
     return this.sendRequest(query)
   }
 
   getSink(sink: number | string): Promise<Sink> {
-    const query: PAPacket = PACommandList.GetSink.query(this.requestId(), sink)
+    const query: PAPacket = GetSink.query(this.requestId(), sink)
     return this.sendRequest(query)
   }
 
@@ -125,7 +125,7 @@ export default class PAClient extends EventEmitter {
   }
 
   setSinkVolume(sink: number | string, volume: number): Promise<VolumeInfo> {
-    const query: PAPacket = PACommandList.SetSinkVolume.query(this.requestId(), sink, { channels: 2, volumes: [volume, volume] })
+    const query: PAPacket = SetSinkVolume.query(this.requestId(), sink, { channels: 2, volumes: [volume, volume] })
     return this.sendRequest(query)
   }
 
@@ -216,13 +216,13 @@ export default class PAClient extends EventEmitter {
         retObj = PAResponse.setClientNameReply(reply)
         break
       case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_SINK_INFO_LIST:
-        retObj = PACommandList.GetSinks.reply(reply, this.protocol)
+        retObj = GetSinks.reply(reply, this.protocol)
         break
       case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_SINK_INFO:
-        retObj = PACommandList.GetSink.reply(reply, this.protocol)
+        retObj = GetSink.reply(reply, this.protocol)
         break
       case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_SET_SINK_VOLUME:
-        retObj = PACommandList.SetSinkVolume.reply(reply, this.protocol)
+        retObj = SetSinkVolume.reply(reply, this.protocol)
         break
       case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_SERVER_INFO:
         retObj = PAResponse.serverInfoReply(reply)

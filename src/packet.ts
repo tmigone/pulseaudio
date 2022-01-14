@@ -2,7 +2,8 @@
 // https://github.com/pulseaudio/pulseaudio/blob/master/src/pulsecore/tagstruct.h
 // https://github.com/pulseaudio/pulseaudio/blob/master/src/pulsecore/tagstruct.c
 
-import { createIterator, Iterator } from './iterator'
+import * as fs from 'fs'
+import { createIterator, Iterator } from './utils/iterator'
 import {
   PATag,
   PATagType,
@@ -21,6 +22,7 @@ import {
   PAU8
 } from './tag'
 import { ChannelVolume } from './types/pulseaudio'
+import { JSONStringify } from './utils/bigInt'
 
 export const PA_PACKET_HEADER: Buffer = Buffer.from([
   0xFF, 0xFF, 0xFF, 0xFF,
@@ -60,6 +62,7 @@ export default class PAPacket {
   command: PAU32
   requestId: PAU32
   tags: PATag<any>[] = []
+  private debugPrint: boolean = process.env.DEBUG_PRINT !== undefined
 
   constructor(buffer?: Buffer) {
     if (buffer) {
@@ -90,6 +93,10 @@ export default class PAPacket {
       offset += tag.size
     }
 
+    if (this.debugPrint) {
+      fs.writeFileSync(`PAPacket.write.buffer`, this.packet.toString('hex'))
+      fs.writeFileSync(`PAPacket.write.tags`, JSONStringify(allTags))
+    }
     return this.packet
   }
 
@@ -160,6 +167,10 @@ export default class PAPacket {
       }
     } catch (error) {
       console.log(error)
+    }
+    if (this.debugPrint) {
+      fs.writeFileSync(`PAPacket.read.buffer`, buffer.toString('hex'))
+      fs.writeFileSync(`PAPacket.read.tags`, JSONStringify(this.tags))
     }
   }
 

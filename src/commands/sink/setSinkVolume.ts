@@ -3,6 +3,10 @@ import PAPacket from '../../packet'
 import { ChannelVolume, VolumeInfo } from '../../types/pulseaudio'
 import { PA_NO_VALUE } from '../../protocol'
 
+interface SetSinkVolume extends PACommand<VolumeInfo> {
+  query (requestId: number, sink: number | string, channelVolumes: ChannelVolume): PAPacket
+}
+
 export const query = (requestId: number, sink: number | string, channelVolumes: ChannelVolume): PAPacket => {
   const packet: PAPacket = new PAPacket()
   packet.setCommand(PA_NATIVE_COMMAND_NAMES.PA_COMMAND_SET_SINK_VOLUME)
@@ -18,7 +22,7 @@ export const reply = (_packet: PAPacket, _protocol: number): VolumeInfo => {
   return { success: true }
 }
 
-const SetSinkVolume: PACommand<VolumeInfo> = {
+const SetSinkVolume: SetSinkVolume = {
   query,
   reply
 }
