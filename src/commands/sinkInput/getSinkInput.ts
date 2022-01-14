@@ -1,9 +1,14 @@
-import { PA_NATIVE_COMMAND_NAMES } from '..'
+import { PACommand, PA_NATIVE_COMMAND_NAMES } from '..'
 import PAPacket from '../../packet'
 import { PA_NO_VALUE } from '../../protocol'
 import { PATag } from '../../tag'
 import { SinkInput } from '../../types/pulseaudio'
 
+interface GetSinkInput extends PACommand<SinkInput> {
+  query (requestId: number, sinkInput: number | string): PAPacket
+}
+
+// https://github.com/pulseaudio/pulseaudio/blob/v15.0/src/pulse/introspect.c#L1206
 const sinkInputKeys: string[] = [
   'index',
   'name',
@@ -25,7 +30,7 @@ const sinkInputKeys: string[] = [
   'format'
 ]
 
-export const getSinkInput = (requestId: number, sinkInput: number | string): PAPacket => {
+export const query = (requestId: number, sinkInput: number | string): PAPacket => {
   const packet: PAPacket = new PAPacket()
   packet.setCommand(PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_SINK_INPUT_INFO)
   packet.setRequestId(requestId)
@@ -33,7 +38,13 @@ export const getSinkInput = (requestId: number, sinkInput: number | string): PAP
   return packet
 }
 
-export const getSinkInputReply = (packet: PAPacket): SinkInput => {
+export const reply = (packet: PAPacket): SinkInput => {
   return PATag.toObject(packet.tags, sinkInputKeys)[0]
 }
 
+const GetSinkInput: GetSinkInput = {
+  query,
+  reply
+}
+
+export default GetSinkInput

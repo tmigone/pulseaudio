@@ -2,7 +2,7 @@ import { PACommand, PA_NATIVE_COMMAND_NAMES } from '..'
 import PAPacket from '../../packet'
 import { Sink } from '../../types/pulseaudio'
 import { PA_NO_VALUE } from '../../protocol'
-import { parseSinks } from '.'
+import { parseSinkPacket } from '.'
 
 interface GetSink extends PACommand<Sink> {
   query (requestId: number, sink: number | string): PAPacket
@@ -18,7 +18,7 @@ const query = (requestId: number, sink: number | string): PAPacket => {
 }
 
 const reply = (packet: PAPacket, protocol: number): Sink => {
-  return parseSinks(packet, protocol)[0]
+  return parseSinkPacket(packet, protocol)[0]
 }
 
 const GetSink: GetSink = {

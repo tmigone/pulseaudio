@@ -1,9 +1,9 @@
 import { PACommand, PA_NATIVE_COMMAND_NAMES } from '..'
 import PAPacket from '../../packet'
 import { Sink } from '../../types/pulseaudio'
-import { parseSinks } from '.'
+import { parseSinkPacket } from '.'
 
-interface GetSinks extends PACommand<Sink[]> {
+interface GetSinkList extends PACommand<Sink[]> {
   query (requestId: number): PAPacket
 }
 
@@ -14,12 +14,12 @@ export const query = (requestId: number): PAPacket => {
   return packet
 }
 export const reply = (packet: PAPacket, protocol: number): Sink[] => {
-  return parseSinks(packet, protocol)
+  return parseSinkPacket(packet, protocol)
 }
 
-const GetSinks: GetSinks = {
+const GetSinkList: GetSinkList = {
   query,
   reply
 }
 
-export default GetSinks
+export default GetSinkList

@@ -19,7 +19,7 @@ import {
   VolumeInfo
 } from './types/pulseaudio'
 
-import { GetSink, GetSinks, SetSinkVolume } from './commands/sink'
+import { GetSink, GetSinkList, SetSinkVolume } from './commands/sink'
 
 interface TCPSocket {
   port: number
@@ -100,7 +100,7 @@ export default class PAClient extends EventEmitter {
   }
 
   getSinks(): Promise<Sink[]> {
-    const query: PAPacket = GetSinks.query(this.requestId())
+    const query: PAPacket = GetSinkList.query(this.requestId())
     return this.sendRequest(query)
   }
 
@@ -216,7 +216,7 @@ export default class PAClient extends EventEmitter {
         retObj = PAResponse.setClientNameReply(reply)
         break
       case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_SINK_INFO_LIST:
-        retObj = GetSinks.reply(reply, this.protocol)
+        retObj = GetSinkList.reply(reply, this.protocol)
         break
       case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_SINK_INFO:
         retObj = GetSink.reply(reply, this.protocol)

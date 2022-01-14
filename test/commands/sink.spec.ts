@@ -1,6 +1,6 @@
 import test from 'ava'
 import { loadFixture, Dictionary, Fixture } from '../fixtures'
-import { GetSink, GetSinks, SetSinkVolume } from '../../src/commands/sink'
+import { GetSink, GetSinkList, SetSinkVolume } from '../../src/commands/sink'
 import { PA_PROTOCOL_MINIMUM_VERSION } from '../../src/protocol'
 import PAPacket from '../../src/packet'
 import { JSONParse, JSONStringify } from '../../src/utils/bigInt'
@@ -29,17 +29,17 @@ test("GetSink reply", t => {
   t.deepEqual(GetSink.reply(packet, PA_PROTOCOL_MINIMUM_VERSION), JSONParse(JSONStringify(f.replyObject)))
 })
 
-// GetSinks
-test("GetSinks query", t => {
-  const f = fixtures['sink'].getSinks
+// GetSinkList
+test("GetSinkList query", t => {
+  const f = fixtures['sink'].getSinkList
   const [ requestId ] = f.queryParameters
-  t.is(GetSinks.query(requestId).write().toString('hex'), f.queryBuffer)
+  t.is(GetSinkList.query(requestId).write().toString('hex'), f.queryBuffer)
 })
 
-test("GetSinks reply", t => {
-  const f = fixtures['sink'].getSinks
+test("GetSinkList reply", t => {
+  const f = fixtures['sink'].getSinkList
   const packet = new PAPacket(Buffer.from(f.replyBuffer, 'hex'))
-  t.deepEqual(GetSinks.reply(packet, PA_PROTOCOL_MINIMUM_VERSION), JSONParse(JSONStringify(f.replyObject)))
+  t.deepEqual(GetSinkList.reply(packet, PA_PROTOCOL_MINIMUM_VERSION), JSONParse(JSONStringify(f.replyObject)))
 })
 
 // SetSinkVolume

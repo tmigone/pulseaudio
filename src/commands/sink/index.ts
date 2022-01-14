@@ -2,17 +2,17 @@ import PAPacket from '../../packet'
 import { Sink, SinkPort } from '../../types/pulseaudio'
 
 import GetSink from './getSink'
-import GetSinks from './getSinks'
+import GetSinkList from './getSinkList'
 import SetSinkVolume from './setSinkVolume'
 
 export {
   GetSink,
-  GetSinks,
+  GetSinkList,
   SetSinkVolume
 }
 
 // https://github.com/pulseaudio/pulseaudio/blob/v15.0/src/pulse/introspect.c#L136
-export const parseSinks = (packet: PAPacket, protocol: number): Sink[] => {
+export const parseSinkPacket = (packet: PAPacket, protocol: number): Sink[] => {
   const sinks: Sink[] = []
   const tags = packet.getTagsIterable()
 
@@ -49,6 +49,7 @@ export const parseSinks = (packet: PAPacket, protocol: number): Sink[] => {
         availabe: tags.nextValue()
       }
 
+      // PulseAudio >= v14.0
       if (protocol >= 34) {
         port.availabilityGroup = tags.nextValue()
         port.type = tags.nextValue()

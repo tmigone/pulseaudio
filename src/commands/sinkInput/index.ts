@@ -3,61 +3,55 @@ import PAPacket from '../packet'
 import { PATag } from '../tag'
 import { SinkInput } from '../types/pulseaudio'
 
-const sinkInputKeys: string[] = [
-  'index',
-  'name',
-  'ownerModule',
-  'unknown0', // Unknowns
-  'sinkIndex',
-  'sampleSpec',
-  'channelMap',
-  'channelVolumes',
-  'unknown1', // Unknowns
-  'unknown2', // Unknowns
-  'resampleMethod',
-  'driverName',
-  'unknown3', // Unknowns
-  'properties',
-  'unknown4', // Unknowns
-  'unknown5', // Unknowns
-  'unknown6', // Unknowns
-  'format'
-]
 
-export const getSinkInputs = (requestId: number): PAPacket => {
-  const packet: PAPacket = new PAPacket()
-  packet.setCommand(PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_SINK_INPUT_INFO_LIST)
-  packet.setRequestId(requestId)
-  return packet
-}
+export const parseSinkPacket = (packet: PAPacket, protocol: number): Sink[] => {
+  const sinks: Sink[] = []
+  const tags = packet.getTagsIterable()
 
-export const getSinkInputsReply = (packet: PAPacket): SinkInput[] => {
-  return PATag.toObject(packet.tags, sinkInputKeys)
-}
+  while (!tags.done) {
+    const sink: Sink = {
+      index: tags.nextValue(),
+      name: tags.nextValue(),
+      description: tags.nextValue(),
+      sampleSpec: tags.nextValue(),
+      channelMap: tags.nextValue(),
+      moduleIndex: tags.nextValue(),
+      channelVolumes: tags.nextValue(),
+      isMuted: tags.nextValue(),
+      monitorSourceIndex: tags.nextValue(),
+      monitorSourceName: tags.nextValue(),
+      latency: tags.nextValue(),
+      driverName: tags.nextValue(),
+      flagsRaw: tags.nextValue(),
+      properties: tags.nextValue(),
+      configLatency: tags.nextValue(),
+      baseVolume: tags.nextValue(),
+      state: tags.nextValue(),
+      volumeSteps: tags.nextValue(),
+      cardIndex: tags.nextValue(),
+      numberPorts: tags.nextValue()
+    }
 
-export const getSinkInput = (requestId: number, sinkInput: number | string): PAPacket => {
-  const packet: PAPacket = new PAPacket()
-  packet.setCommand(PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_SINK_INPUT_INFO)
-  packet.setRequestId(requestId)
-  packet.putU32(typeof sinkInput === 'number' ? sinkInput : 0xFFFFFFFF)
-  return packet
-}
+    sink.ports = []
+    for (let sinkIndex = 0; sinkIndex < sink.numberPorts; sinkIndex++) {
+      const port: SinkPort = {
+        name: tags.nextValue(),
+        description: tags.nextValue(),
+        priority: tags.nextValue(),
+        availabe: tags.nextValue()
+      }
 
-export const getSinkInputReply = (packet: PAPacket): SinkInput => {
-  return PATag.toObject(packet.tags, sinkInputKeys)[0]
-}
+      if (protocol >= 34) {
+        port.availabilityGroup = tags.nextValue()
+        port.type = tags.nextValue()
+      }
+    }
 
-export const moveSinkInput = (requestId: number, sinkInput: number, destSink: number): PAPacket => {
-  const packet: PAPacket = new PAPacket()
-  packet.setCommand(PA_NATIVE_COMMAND_NAMES.PA_COMMAND_MOVE_SINK_INPUT)
-  packet.setRequestId(requestId)
-  packet.putU32(sinkInput)
-  packet.putU32(destSink)
-  packet.putString('')
-  return packet
-}
+    sink.activePortName = tags.nextValue()
+    sink.formats = tags.nextValue()
 
-export const moveSinkInputReply = (_packet: PAPacket): SinkInput => {
-  // Looks like the reply has no data
-  return { success: true }
+    sinks.push(sink)
+  }
+
+  return sinks
 }
