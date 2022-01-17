@@ -1,23 +1,23 @@
 import PAPacket from '../../packet'
-import { Sink, Port } from '../../types/pulseaudio'
+import { Source, Port } from '../../types/pulseaudio'
 
-import GetSink from './getSink'
-import GetSinkList from './getSinkList'
-import SetSinkVolume from './setSinkVolume'
+import GetSource from './getSource'
+import GetSourceList from './getSourceList'
+import SetSourceVolume from './setSourceVolume'
 
 export {
-  GetSink,
-  GetSinkList,
-  SetSinkVolume
+  GetSource,
+  GetSourceList,
+  SetSourceVolume
 }
 
 // https://github.com/pulseaudio/pulseaudio/blob/v15.0/src/pulse/introspect.c#L136
-export const parseSinkPacket = (packet: PAPacket, protocol: number): Sink[] => {
-  const sinks: Sink[] = []
+export const parseSourcePacket = (packet: PAPacket, protocol: number): Source[] => {
+  const sources: Source[] = []
   const tags = packet.getTagsIterable()
 
   while (!tags.done) {
-    const sink: Sink = {
+    const source: Source = {
       index: tags.nextValue(),
       name: tags.nextValue(),
       description: tags.nextValue(),
@@ -26,8 +26,8 @@ export const parseSinkPacket = (packet: PAPacket, protocol: number): Sink[] => {
       moduleIndex: tags.nextValue(),
       channelVolume: tags.nextValue(),
       isMuted: tags.nextValue(),
-      monitorSourceIndex: tags.nextValue(),
-      monitorSourceName: tags.nextValue(),
+      monitorSinkIndex: tags.nextValue(),
+      monitorSinkName: tags.nextValue(),
       latency: tags.nextValue(),
       driverName: tags.nextValue(),
       flagsRaw: tags.nextValue(),
@@ -40,8 +40,8 @@ export const parseSinkPacket = (packet: PAPacket, protocol: number): Sink[] => {
       numberPorts: tags.nextValue()
     }
 
-    sink.ports = []
-    for (let index = 0; index < sink.numberPorts; index++) {
+    source.ports = []
+    for (let index = 0; index < source.numberPorts; index++) {
       const port: Port = {
         name: tags.nextValue(),
         description: tags.nextValue(),
@@ -56,11 +56,11 @@ export const parseSinkPacket = (packet: PAPacket, protocol: number): Sink[] => {
       }
     }
 
-    sink.activePortName = tags.nextValue()
-    sink.formats = tags.nextValue()
+    source.activePortName = tags.nextValue()
+    source.formats = tags.nextValue()
 
-    sinks.push(sink)
+    sources.push(source)
   }
 
-  return sinks
+  return sources
 }

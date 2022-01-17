@@ -21,7 +21,7 @@ import { JSONStringify } from '../../src/utils/bigInt'
   process.env.DEBUG_PRINT = 'true'
 
   // 
-  const data = await client.loadModule("module-null-sink", "sink_name=\"test-module-load\"") // Edit command here
+  const data = await client.setSourceVolume(0, 50) // Edit command here
   // 
 
   fs.writeFileSync('PACommand.data', JSONStringify(data))

@@ -24,19 +24,19 @@ export interface Sink {
   latency: BigInt
   driverName: string
   flagsRaw: number
-  properties?: []
-  configLatency?: BigInt
-  baseVolume?: number
-  state?: number
-  volumeSteps?: number
-  cardIndex?: number
+  properties: []
+  configLatency: BigInt
+  baseVolume: number
+  state: number
+  volumeSteps: number
+  cardIndex: number
   numberPorts: number
-  ports?: SinkPort[]
+  ports?: Port[]
   activePortName?: string
   formats?: Format[]
 }
 
-export interface SinkPort {
+export interface Port {
   name: string
   description: string
   priority: number
@@ -64,6 +64,32 @@ export interface SinkInput {
   hasVolume?: boolean
   isVolumeWritable?: boolean
   format?: Format
+}
+
+export interface Source {
+  index: number
+  name: string
+  description: string
+  sampleSpec: SampleSpec
+  channelMap: ChannelMap
+  moduleIndex: number
+  channelVolume: ChannelVolume
+  isMuted: boolean
+  monitorSinkIndex: number
+  monitorSinkName: number
+  latency: BigInt
+  driverName: string
+  flagsRaw: number
+  properties: []
+  configLatency: BigInt
+  baseVolume: number
+  state: number
+  volumeSteps: number
+  cardIndex: number
+  numberPorts: number
+  ports?: Port[]
+  activePortName?: string
+  formats?: Format[]
 }
 
 export type ChannelVolume = {

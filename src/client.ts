@@ -14,6 +14,7 @@ import {
   ServerInfo,
   Sink,
   SinkInput,
+  Source,
   SubscribeInfo,
   VolumeInfo
 } from './types/pulseaudio'
@@ -24,6 +25,7 @@ import { GetSink, GetSinkList, SetSinkVolume } from './commands/sink'
 import { Authenticate, GetServerInfo, Subscribe } from './commands/server'
 import { GetSinkInput, GetSinkInputList, MoveSinkInput } from './commands/sinkInput'
 import { GetModule, GetModuleList, LoadModule, UnloadModule } from './commands/module'
+import { GetSource, GetSourceList, SetSourceVolume } from './commands/source'
 
 interface TCPSocket {
   port: number
@@ -130,6 +132,21 @@ export default class PAClient extends EventEmitter {
 
   moveSinkInput(sinkInput: number, destSink: number): Promise<any> {
     const query: PAPacket = MoveSinkInput.query(this.requestId(), sinkInput, destSink)
+    return this.sendRequest(query)
+  }
+
+  getSource(source: number | string): Promise<Source> {
+    const query: PAPacket = GetSource.query(this.requestId(), source)
+    return this.sendRequest(query)
+  }
+
+  getSourceList(): Promise<Source> {
+    const query: PAPacket = GetSourceList.query(this.requestId())
+    return this.sendRequest(query)
+  }
+
+  setSourceVolume(source: number | string, volume: number): Promise<Source> {
+    const query: PAPacket = SetSourceVolume.query(this.requestId(), source, { channels: 2, volumes: [volume, volume] })
     return this.sendRequest(query)
   }
 
@@ -263,6 +280,15 @@ export default class PAClient extends EventEmitter {
         break
       case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_MOVE_SINK_INPUT:
         retObj = MoveSinkInput.reply(reply, this.protocol)
+        break
+      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_SOURCE_INFO:
+        retObj = GetSource.reply(reply, this.protocol)
+        break
+      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_SOURCE_INFO_LIST:
+        retObj = GetSourceList.reply(reply, this.protocol)
+        break
+      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_SET_SOURCE_VOLUME:
+        retObj = SetSourceVolume.reply(reply, this.protocol)
         break
       case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_MODULE_INFO:
         retObj = GetModule.reply(reply, this.protocol)
