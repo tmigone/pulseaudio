@@ -39,31 +39,24 @@ export default class PAPropList extends PATag<[string, string][]> {
   }
 
   parseTag(buffer: Buffer): PAProp[] {
-    // Find proplist end
-    // Loop until we find '4e' which is the string terminator + next byte is not a known tag type
-    // Once we find it, offset + 1 is where prop list ends
-    let end: number = 0
-
-    for (let index: number = 0; index < buffer.length; index++) {
-      if (buffer.readUInt8(index) === PATagType.PA_TAG_STRING_NULL.toString().charCodeAt(0)) {
-        if (index === buffer.length - 1 || this.isKnownTagType(buffer.readUInt8(index + 1))) {
-          end = index
-          break
-        }
-      }
-    }
 
     // Check if proplist is empty
     if (buffer.subarray(0, 2).toString('hex') === '504e') {
       return []
     }
 
-    // Split properties by '0074', null terminator on arbitrary + next string tag.
-    // TODO: find a better way of doing this
+    // Parse props until we get to '4e'
     const props: PAProp[] = []
-    const bufferOnlyProps: Buffer = buffer.subarray(1, end)
-    const parts: string[] = bufferOnlyProps.toString('hex').replace(/0074/g, '00|74').split('|')
-    parts.map(p => props.push(new PAProp(Buffer.from(p, 'hex'))))
+    let done: boolean = false
+    let index: number = 1
+    
+    while (!done) {
+      const prop = new PAProp(buffer.subarray(index))
+      props.push(prop)
+      index = index + prop.size
+      done = buffer.readUInt8(index) === 0x4e
+    }
+
     return props
   }
 

@@ -9,7 +9,6 @@ import PAClient from '../../src/client'
 
   const client: PAClient = new PAClient(PULSE_SERVER_V13)
   await client.connect()
-  console.log(await client.getSinks())
-  console.log(await client.getSink(0))
+  console.log(await client.getModuleList())
   client.disconnect()
 })()

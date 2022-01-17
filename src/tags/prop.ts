@@ -3,14 +3,12 @@ import PAArbitrary from './arbitrary'
 import PAU32 from './u32'
 import PAString from './string'
 
-const PA_PROP_BASE_SIZE = 7
+const PA_PROP_BASE_SIZE = 5
 
 // PulseAudio property tag structure by section
-// - 1 byte: tag type
 // + X byte: String tag with property name
 // + 5 byte: U32 tag with property value length (+1)
 // + X byte: Arbitrary tag with null terminated property value (+1)
-// - 1 byte: tag string null
 export default class PAProp extends PATag<[string, string]> {
 
   type: PATagType = PATagType.PA_TAG_PROP
@@ -59,8 +57,7 @@ export default class PAProp extends PATag<[string, string]> {
     }
 
     const propName: PAString = new PAString(buffer.subarray(0, offset + 1))
-    const propValue: PAArbitrary = new PAArbitrary(buffer.subarray(offset + 1 + 5))
-
+    const propValue: PAArbitrary = new PAArbitrary(buffer.subarray(offset + 1 + PA_PROP_BASE_SIZE))
     return [propName, propValue]
   }
 

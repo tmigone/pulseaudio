@@ -36,7 +36,7 @@ export default class PAArbitrary extends PATag<Buffer> {
     try {
       const tagType: PATagType = buffer.readUInt8(0)
       const valueLength: number = buffer.readUInt32BE(1)
-      const value: Buffer = buffer.subarray(5)
+      const value: Buffer = buffer.subarray(PA_ARBITRARY_BASE_SIZE, PA_ARBITRARY_BASE_SIZE + valueLength)
       return tagType === PATagType.PA_TAG_ARBITRARY.toString().charCodeAt(0) && valueLength === value.length
     } catch (error) {
       console.log(error)

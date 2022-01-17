@@ -147,6 +147,16 @@ const cases: PATagTestCases<any>[] = [
     }
   },
   {
+    title: 'Create list of props from buffer with char after string terminator that matches PATag type code',
+    pa_tag: new PAPropList(Buffer.from('50746d6f64756c652e617574686f72004c0000001378000000134c656e6e61727420506f6574746572696e6700746d6f64756c652e6465736372697074696f6e004c0000001f780000001f4e61746976652070726f746f636f6c2028554e495820736f636b6574732900746d6f64756c652e76657273696f6e004c00000005780000000531332e30004e', 'hex')),
+    expected: {
+      tag: Buffer.from('50746d6f64756c652e617574686f72004c0000001378000000134c656e6e61727420506f6574746572696e6700746d6f64756c652e6465736372697074696f6e004c0000001f780000001f4e61746976652070726f746f636f6c2028554e495820736f636b6574732900746d6f64756c652e76657273696f6e004c00000005780000000531332e30004e', 'hex'),
+      size: 138,
+      type: PATagType.PA_TAG_PROPLIST,
+      value: [['module.author', 'Lennart Poettering'], ['module.description', 'Native protocol (UNIX sockets)'], ['module.version', '13.0']]
+    }
+  },
+  {
     title: 'Create empty list of props from values',
     pa_tag: new PAPropList([]),
     expected: {
