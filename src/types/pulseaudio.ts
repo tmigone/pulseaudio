@@ -1,3 +1,15 @@
+export interface Module {
+  index: number
+  name: string
+  argument: string
+  usageCounter: number
+  properties: []
+}
+
+export interface Index {
+  index: number
+}
+
 export interface Sink {
   index: number
   name: string

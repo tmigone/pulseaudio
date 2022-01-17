@@ -10,6 +10,7 @@ import { PAError } from './error'
 import {
   AuthInfo,
   ClientInfo,
+  Module,
   ServerInfo,
   Sink,
   SinkInput,
@@ -17,11 +18,12 @@ import {
   VolumeInfo
 } from './types/pulseaudio'
 
+import { SetClientName } from './commands/client'
 import { PA_NATIVE_COMMAND_NAMES } from './commands'
 import { GetSink, GetSinkList, SetSinkVolume } from './commands/sink'
-import { GetSinkInput, GetSinkInputList, MoveSinkInput } from './commands/sinkInput'
-import { SetClientName } from './commands/client'
 import { Authenticate, GetServerInfo, Subscribe } from './commands/server'
+import { GetSinkInput, GetSinkInputList, MoveSinkInput } from './commands/sinkInput'
+import { GetModule, GetModuleList, LoadModule, UnloadModule } from './commands/module'
 
 interface TCPSocket {
   port: number
@@ -131,6 +133,25 @@ export default class PAClient extends EventEmitter {
     return this.sendRequest(query)
   }
 
+  getModule(moduleIndex: number): Promise<Module> {
+    const query: PAPacket = GetModule.query(this.requestId(), moduleIndex)
+    return this.sendRequest(query)
+  }
+
+  getModuleList(): Promise<Module> {
+    const query: PAPacket = GetModuleList.query(this.requestId())
+    return this.sendRequest(query)
+  }
+
+  loadModule(name: string, argument: string): Promise<Module> {
+    const query: PAPacket = LoadModule.query(this.requestId(), name, argument)
+    return this.sendRequest(query) 
+  }
+
+  unloadModule(moduleIndex: number): Promise<Module> {
+    const query: PAPacket = UnloadModule.query(this.requestId(), moduleIndex)
+    return this.sendRequest(query) 
+  }
 
 
   // Private methods
@@ -242,6 +263,18 @@ export default class PAClient extends EventEmitter {
         break
       case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_MOVE_SINK_INPUT:
         retObj = MoveSinkInput.reply(reply, this.protocol)
+        break
+      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_MODULE_INFO:
+        retObj = GetModule.reply(reply, this.protocol)
+        break
+      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_GET_MODULE_INFO_LIST:
+        retObj = GetModuleList.reply(reply, this.protocol)
+        break
+      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_LOAD_MODULE:
+        retObj = LoadModule.reply(reply, this.protocol)
+        break
+      case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_UNLOAD_MODULE:
+        retObj = UnloadModule.reply(reply, this.protocol)
         break
       default:
         throw new Error(`Command ${query.value} not supported. Please report issue.`)
