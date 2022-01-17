@@ -1,7 +1,7 @@
 # Testing
 
 Unit tests:
-- run against data snapshots extracted from requests made to a PulseAudio server running v13
+- run against data snapshots (`test/fixtures`) extracted from requests made to a PulseAudio server running v13
 - run with `npm run test`
 
 E2E tests:
