@@ -92,6 +92,27 @@ export interface Source {
   formats?: Format[]
 }
 
+export interface SourceOutput {
+  index: number
+  name: string
+  moduleIndex: number
+  clientIndex: number
+  sourceIndex: number
+  sampleSpec: SampleSpec
+  channelMap: ChannelMap
+  bufferLatency: BigInt
+  sourceLatency: BigInt
+  resampleMethod: string
+  driverName: string
+  properties?: []
+  isCorked?: boolean
+  channelVolume: ChannelVolume
+  isMuted?: boolean
+  hasVolume?: boolean
+  isVolumeWritable?: boolean
+  format?: Format
+}
+
 export type ChannelVolume = {
   channels: number
   volumes: number[]
