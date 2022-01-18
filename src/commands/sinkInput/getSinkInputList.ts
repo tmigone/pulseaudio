@@ -4,7 +4,7 @@ import { SinkInput } from '../../types/pulseaudio'
 import { parseSinkInputPacket } from '.'
 
 interface GetSinkInputList extends PACommand<SinkInput[]> {
-  query (requestId: number): PAPacket
+  query: (requestId: number) => PAPacket
 }
 
 const query = (requestId: number): PAPacket => {
@@ -18,6 +18,7 @@ const reply = (packet: PAPacket, _protocol: number): SinkInput[] => {
   return parseSinkInputPacket(packet)
 }
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 const GetSinkInputList: GetSinkInputList = {
   query,
   reply

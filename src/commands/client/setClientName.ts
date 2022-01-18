@@ -3,7 +3,7 @@ import PAPacket from '../../packet'
 import { ClientInfo } from '../../types/pulseaudio'
 
 interface SetClientName extends PACommand<ClientInfo> {
-  query(requestId: number, name?: string): PAPacket
+  query: (requestId: number, name?: string) => PAPacket
 }
 
 const query = (requestId: number, clientName: string = 'palib-client'): PAPacket => {
@@ -20,6 +20,7 @@ const reply = (packet: PAPacket): ClientInfo => {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 const SetClientName: SetClientName = {
   query,
   reply

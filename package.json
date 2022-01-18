@@ -11,7 +11,11 @@
     "test:unit": "ava",
     "test:e2e": "ava --config ava-e2e.config.cjs",
     "watch": "tsc --watch --project tsconfig.json",
-    "prepare": "npm run build"
+    "prepack": "npm run build",
+    "prepare": "husky install",
+    "lint": "ts-standard",
+    "lint:fix": "ts-standard --fix",
+    "pre-commit": "lint-staged"
   },
   "repository": {
     "type": "git",
@@ -38,8 +42,11 @@
     "@types/node": "^14.0.13",
     "ava": "^3.8.2",
     "dotenv": "^11.0.0",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.2.0",
     "nodemon": "^2.0.4",
     "ts-node": "^8.10.2",
+    "ts-standard": "^11.0.0",
     "typescript": "^3.9.5"
   },
   "files": [

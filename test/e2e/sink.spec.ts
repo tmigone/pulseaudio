@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable import/first */
 require('dotenv').config()
 import test from 'ava'
 import PAClient from '../../src/client'
@@ -13,7 +15,7 @@ test.before(async _t => {
   await client.connect()
 })
 
-test("Change sink volume", async t => {
+test('Change sink volume', async t => {
   const sinks = await client.getSinkList()
   if (sinks.length === 0) {
     t.fail('No sink found')

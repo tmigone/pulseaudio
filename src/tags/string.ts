@@ -12,7 +12,7 @@ const PA_NULL_STRING_SIZE = 1
 export default class PAString extends PATag<string> {
   type: PATagType = PATagType.PA_TAG_STRING
 
-  toTagBuffer(value: string): Buffer {
+  toTagBuffer (value: string): Buffer {
     let buffer: Buffer
 
     if (value.length === 0) {
@@ -23,12 +23,12 @@ export default class PAString extends PATag<string> {
       let offset: number = 0
       offset = buffer.writeUInt8(PATagType.PA_TAG_STRING.toString().charCodeAt(0), offset)
       offset += buffer.write(value, offset)
-      offset = buffer.writeUInt8(0x00, offset) // Null terminator
+      buffer.writeUInt8(0x00, offset) // Null terminator
     }
     return buffer
   }
 
-  fromTagBuffer(buffer: Buffer): string {
+  fromTagBuffer (buffer: Buffer): string {
     const tagType: PATagType = buffer.readUInt8(0)
 
     if (tagType === PATagType.PA_TAG_STRING_NULL.toString().charCodeAt(0)) {
@@ -38,9 +38,9 @@ export default class PAString extends PATag<string> {
     }
   }
 
-  sanitizeBuffer(buffer: Buffer): Buffer {
+  sanitizeBuffer (buffer: Buffer): Buffer {
     const tagType: PATagType = buffer.readUInt8(0)
-    
+
     if (tagType === PATagType.PA_TAG_STRING_NULL.toString().charCodeAt(0)) {
       return buffer.subarray(0, PA_NULL_STRING_SIZE)
     } else {
@@ -54,13 +54,13 @@ export default class PAString extends PATag<string> {
     }
   }
 
-  isValidBuffer(buffer: Buffer): boolean {
+  isValidBuffer (buffer: Buffer): boolean {
     const tagType: PATagType = buffer.readUInt8(0)
     return (tagType === PATagType.PA_TAG_STRING.toString().charCodeAt(0)) || (tagType === PATagType.PA_TAG_STRING_NULL.toString().charCodeAt(0))
   }
 
-  /* @ts-ignore */
-  isTagBuffer(buffer: Buffer): boolean {
+  /* @ts-expect-error */
+  isTagBuffer (buffer: Buffer): boolean {
     return true
   }
 }

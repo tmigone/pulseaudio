@@ -17,13 +17,13 @@ test.before(async _t => {
 })
 
 // SetClientName
-test("SetClientName query", t => {
+test('SetClientName query', t => {
   const f = fixtures.client.setClientName
-  const [ requestId, clientName ] = f.queryParameters
+  const [requestId, clientName] = f.queryParameters
   t.is(SetClientName.query(requestId, clientName).write().toString('hex'), f.queryBuffer)
 })
 
-test("SetClientName reply", t => {
+test('SetClientName reply', t => {
   const f = fixtures.client.setClientName
   const packet = new PAPacket(Buffer.from(f.replyBuffer, 'hex'))
   t.deepEqual(SetClientName.reply(packet, PA_PROTOCOL_MINIMUM_VERSION), JSONParse(JSONStringify(f.replyObject)))

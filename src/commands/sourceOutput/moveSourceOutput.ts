@@ -3,7 +3,7 @@ import PAPacket from '../../packet'
 import { Status } from '../../types/pulseaudio'
 
 interface MoveSourceOutput extends PACommand<Status> {
-  query (requestId: number, sourceOutput: number, destSource: number): PAPacket
+  query: (requestId: number, sourceOutput: number, destSource: number) => PAPacket
 }
 
 const query = (requestId: number, sourceOutput: number, destSource: number): PAPacket => {
@@ -21,6 +21,7 @@ const reply = (_packet: PAPacket, _protocol: number): Status => {
   return { success: true }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 const MoveSourceOutput: MoveSourceOutput = {
   query,
   reply

@@ -4,7 +4,7 @@ import { Module } from '../../types/pulseaudio'
 import { parseModulePacket } from '.'
 
 interface GetModuleList extends PACommand<Module[]> {
-  query (requestId: number): PAPacket
+  query: (requestId: number) => PAPacket
 }
 
 // https://github.com/pulseaudio/pulseaudio/blob/v15.0/src/pulse/introspect.c#L1200
@@ -19,6 +19,7 @@ const reply = (packet: PAPacket, protocol: number): Module[] => {
   return parseModulePacket(packet, protocol)
 }
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 const GetModuleList: GetModuleList = {
   query,
   reply

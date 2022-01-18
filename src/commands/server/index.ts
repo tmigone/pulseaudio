@@ -10,7 +10,6 @@ export {
   Subscribe
 }
 
-
 // https://github.com/pulseaudio/pulseaudio/blob/v15.0/src/pulse/introspect.c#L83
 export const parseServerInfoPacket = (packet: PAPacket, _protocol: number): ServerInfo[] => {
   const serverInfos: ServerInfo[] = []

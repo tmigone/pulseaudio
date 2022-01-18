@@ -4,7 +4,7 @@ import { PASubscriptionMask } from '../../event'
 import { SubscribeInfo } from '../../types/pulseaudio'
 
 interface Subscribe extends PACommand<SubscribeInfo> {
-  query(requestId: number): PAPacket
+  query: (requestId: number) => PAPacket
 }
 
 const query = (requestId: number): PAPacket => {
@@ -21,6 +21,7 @@ const reply = (_packet: PAPacket, _protocol: number): SubscribeInfo => {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 const Subscribe: Subscribe = {
   query,
   reply

@@ -36,7 +36,6 @@ interface TCPSocket {
 }
 
 export default class PAClient extends EventEmitter {
-
   public pulseAddress: TCPSocket
   public pulseCookie: Buffer = Buffer.allocUnsafe(256)
   public connected: boolean = false
@@ -46,30 +45,30 @@ export default class PAClient extends EventEmitter {
   private lastRequestId: number = 0
   private protocol: number = 0
 
-  constructor(address: string, cookiePath?: string) {
+  constructor (address: string, cookiePath?: string) {
     super()
     this.parseAddress(address)
-    if (cookiePath) this.parseCookie(cookiePath)
+    if (cookiePath !== undefined) this.parseCookie(cookiePath)
   }
 
   // Client APIs
-  connect(): Promise<AuthInfo> {
-    return new Promise<AuthInfo>((resolve, reject) => {
+  async connect (): Promise<AuthInfo> {
+    return await new Promise<AuthInfo>((resolve, reject) => {
       this.socket = new Socket()
       this.socket.setTimeout(5_000)
       this.socket.connect(this.pulseAddress.port, this.pulseAddress.host)
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
       this.socket.on('connect', async () => {
         this.connected = true
 
         // Authenticate client
-        let reply: AuthInfo = await this.authenticate()
+        const reply: AuthInfo = await this.authenticate()
         this.protocol = reply.protocol
         console.log(`Connected to PulseAudio at ${this.pulseAddress.host}:${this.pulseAddress.port} using protocol v${this.protocol}`)
 
         if (reply.protocol < PA_PROTOCOL_MINIMUM_VERSION) {
-          console.log(`Server protocol version is too low, please update to ${PA_PROTOCOL_MINIMUM_VERSION} or higher.`)
           this.disconnect()
-          reject()
+          reject(new Error(`Server protocol version is too low, please update to ${PA_PROTOCOL_MINIMUM_VERSION} or higher.`))
         }
 
         resolve(reply)
@@ -79,127 +78,126 @@ export default class PAClient extends EventEmitter {
       this.socket.on('timeout', () => {
         console.log(`Socket timed out! Cannot reach PulseAudio server at ${this.pulseAddress.host}:${this.pulseAddress.port}`)
         this.disconnect()
-      });
+      })
     })
   }
 
-  disconnect(): void {
+  disconnect (): void {
     this.socket.removeAllListeners()
     this.socket.end()
   }
 
-  authenticate(): Promise<AuthInfo> {
+  async authenticate (): Promise<AuthInfo> {
     const query: PAPacket = Authenticate.query(this.requestId(), this.pulseCookie)
-    return this.sendRequest(query)
+    return await this.sendRequest(query)
   }
 
-  subscribe(): Promise<SubscribeInfo> {
+  async subscribe (): Promise<SubscribeInfo> {
     const query: PAPacket = Subscribe.query(this.requestId())
-    return this.sendRequest(query)
+    return await this.sendRequest(query)
   }
 
-  setClientName(clientName?: string): Promise<ClientInfo> {
+  async setClientName (clientName?: string): Promise<ClientInfo> {
     const query: PAPacket = SetClientName.query(this.requestId(), clientName)
-    return this.sendRequest(query)
+    return await this.sendRequest(query)
   }
 
-  getServerInfo(): Promise<ServerInfo> {
+  async getServerInfo (): Promise<ServerInfo> {
     const query: PAPacket = GetServerInfo.query(this.requestId())
-    return this.sendRequest(query)
+    return await this.sendRequest(query)
   }
 
-  getSink(sink: number | string): Promise<Sink> {
+  async getSink (sink: number | string): Promise<Sink> {
     const query: PAPacket = GetSink.query(this.requestId(), sink)
-    return this.sendRequest(query)
+    return await this.sendRequest(query)
   }
 
-  getSinkList(): Promise<Sink[]> {
+  async getSinkList (): Promise<Sink[]> {
     const query: PAPacket = GetSinkList.query(this.requestId())
-    return this.sendRequest(query)
+    return await this.sendRequest(query)
   }
 
-  setSinkVolume(sink: number | string, volume: number): Promise<VolumeInfo> {
+  async setSinkVolume (sink: number | string, volume: number): Promise<VolumeInfo> {
     const query: PAPacket = SetSinkVolume.query(this.requestId(), sink, { channels: 2, volumes: [volume, volume] })
-    return this.sendRequest(query)
+    return await this.sendRequest(query)
   }
 
-  getSinkInputList(): Promise<Sink[]> {
+  async getSinkInputList (): Promise<Sink[]> {
     const query: PAPacket = GetSinkInputList.query(this.requestId())
-    return this.sendRequest(query)
+    return await this.sendRequest(query)
   }
 
-  getSinkInput(sinkInput: number | string): Promise<SinkInput> {
+  async getSinkInput (sinkInput: number | string): Promise<SinkInput> {
     const query: PAPacket = GetSinkInput.query(this.requestId(), sinkInput)
-    return this.sendRequest(query)
+    return await this.sendRequest(query)
   }
 
-  moveSinkInput(sinkInput: number, destSink: number): Promise<any> {
+  async moveSinkInput (sinkInput: number, destSink: number): Promise<any> {
     const query: PAPacket = MoveSinkInput.query(this.requestId(), sinkInput, destSink)
-    return this.sendRequest(query)
+    return await this.sendRequest(query)
   }
 
-  getSource(source: number | string): Promise<Source> {
+  async getSource (source: number | string): Promise<Source> {
     const query: PAPacket = GetSource.query(this.requestId(), source)
-    return this.sendRequest(query)
+    return await this.sendRequest(query)
   }
 
-  getSourceList(): Promise<Source> {
+  async getSourceList (): Promise<Source> {
     const query: PAPacket = GetSourceList.query(this.requestId())
-    return this.sendRequest(query)
+    return await this.sendRequest(query)
   }
 
-  setSourceVolume(source: number | string, volume: number): Promise<Source> {
+  async setSourceVolume (source: number | string, volume: number): Promise<Source> {
     const query: PAPacket = SetSourceVolume.query(this.requestId(), source, { channels: 2, volumes: [volume, volume] })
-    return this.sendRequest(query)
+    return await this.sendRequest(query)
   }
 
-  getSourceOutput(sourceOutput: number | string): Promise<SourceOutput> {
+  async getSourceOutput (sourceOutput: number | string): Promise<SourceOutput> {
     const query: PAPacket = GetSourceOutput.query(this.requestId(), sourceOutput)
-    return this.sendRequest(query)
+    return await this.sendRequest(query)
   }
 
-  getSourceOutputList(): Promise<SourceOutput> {
+  async getSourceOutputList (): Promise<SourceOutput> {
     const query: PAPacket = GetSourceOutputList.query(this.requestId())
-    return this.sendRequest(query)
+    return await this.sendRequest(query)
   }
 
-  moveSourceOutput(sourceOutput: number, destSource: number): Promise<SourceOutput> {
+  async moveSourceOutput (sourceOutput: number, destSource: number): Promise<SourceOutput> {
     const query: PAPacket = MoveSourceOutput.query(this.requestId(), sourceOutput, destSource)
-    return this.sendRequest(query)
+    return await this.sendRequest(query)
   }
 
-  getModule(moduleIndex: number): Promise<Module> {
+  async getModule (moduleIndex: number): Promise<Module> {
     const query: PAPacket = GetModule.query(this.requestId(), moduleIndex)
-    return this.sendRequest(query)
+    return await this.sendRequest(query)
   }
 
-  getModuleList(): Promise<Module> {
+  async getModuleList (): Promise<Module> {
     const query: PAPacket = GetModuleList.query(this.requestId())
-    return this.sendRequest(query)
+    return await this.sendRequest(query)
   }
 
-  loadModule(name: string, argument: string): Promise<Module> {
+  async loadModule (name: string, argument: string): Promise<Module> {
     const query: PAPacket = LoadModule.query(this.requestId(), name, argument)
-    return this.sendRequest(query) 
+    return await this.sendRequest(query)
   }
 
-  unloadModule(moduleIndex: number): Promise<Module> {
+  async unloadModule (moduleIndex: number): Promise<Module> {
     const query: PAPacket = UnloadModule.query(this.requestId(), moduleIndex)
-    return this.sendRequest(query) 
+    return await this.sendRequest(query)
   }
-
 
   // Private methods
-  private onReadable(): void {
+  private onReadable (): void {
     // Don't read if we don't have at least 10 bytes
     if (this.socket.readableLength < 10) {
       console.log('Malformed packet!')
-      let malformed: Buffer = this.socket.read(this.socket.readableLength)
-      console.log(malformed);
+      const malformed: Buffer = this.socket.read(this.socket.readableLength)
+      console.log(malformed)
       return
     }
 
-    let chunk: Buffer = this.socket.read(this.socket.readableLength)
+    const chunk: Buffer = this.socket.read(this.socket.readableLength)
 
     // Discard previous chunks if we get a new packet header and stil have pending chunks
     // This should not happen really, if it does it's probably a bug
@@ -220,12 +218,12 @@ export default class PAClient extends EventEmitter {
     }
   }
 
-  private requestId(): number {
+  private requestId (): number {
     this.lastRequestId = (this.lastRequestId + 1) & PA_MAX_REQUEST_ID
     return this.lastRequestId
   }
 
-  private async sendRequest(query: PAPacket): Promise<any> {
+  private async sendRequest (query: PAPacket): Promise<any> {
     const request: PARequest = new PARequest(this.lastRequestId, query)
     this.requests.push(request)
 
@@ -234,11 +232,12 @@ export default class PAClient extends EventEmitter {
     }
 
     this.socket.write(request.query.write())
-    return request.promise
+    return await request.promise
   }
 
-  private resolveRequest(reply: PAPacket): void {
+  private resolveRequest (reply: PAPacket): void {
     let request: PARequest | undefined
+    let event: PAEvent | undefined
     switch (reply.command.value) {
       case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_ERROR:
         request = this.requests.find(r => r.id === reply.requestId.value)
@@ -251,7 +250,7 @@ export default class PAClient extends EventEmitter {
         this.requests = this.requests.filter(r => r.id !== reply.requestId.value)
         break
       case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_SUBSCRIBE_EVENT:
-        const event: PAEvent = this.parseEvent(reply)
+        event = this.parseEvent(reply)
         this.emit(event.category, event)
         this.emit('all', event)
         break
@@ -260,12 +259,12 @@ export default class PAClient extends EventEmitter {
     }
   }
 
-  private rejectRequest(request: PARequest, error: Error): void {
+  private rejectRequest (request: PARequest, error: Error): void {
     request.reject(error)
     this.requests = this.requests.filter(r => r.id !== request.id)
   }
 
-  private parseReply(reply: PAPacket, query: PATag<any>): any {
+  private parseReply (reply: PAPacket, query: PATag<any>): any {
     let retObj: any = {}
 
     switch (query.value) {
@@ -277,7 +276,7 @@ export default class PAClient extends EventEmitter {
         break
       case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_SUBSCRIBE:
         retObj = Subscribe.reply(reply, this.protocol)
-        break        
+        break
       case PA_NATIVE_COMMAND_NAMES.PA_COMMAND_SET_CLIENT_NAME:
         retObj = SetClientName.reply(reply, this.protocol)
         break
@@ -330,12 +329,12 @@ export default class PAClient extends EventEmitter {
         retObj = UnloadModule.reply(reply, this.protocol)
         break
       default:
-        throw new Error(`Command ${query.value} not supported. Please report issue.`)
+        throw new Error(`Command ${query.value as string} not supported. Please report issue.`)
     }
     return retObj
   }
 
-  private parseEvent(packet: PAPacket): PAEvent {
+  private parseEvent (packet: PAPacket): PAEvent {
     const details: number = packet.tags[0].value
     const index: number = packet.tags[1].value
 
@@ -344,34 +343,34 @@ export default class PAClient extends EventEmitter {
     switch (details & PASubscriptionEventType.FACILITY_MASK) {
       case PASubscriptionEventType.SINK:
         category = 'sink'
-        break;
+        break
       case PASubscriptionEventType.SOURCE:
         category = 'source'
-        break;
+        break
       case PASubscriptionEventType.SINK_INPUT:
         category = 'sinkInput'
-        break;
+        break
       case PASubscriptionEventType.SOURCE_OUTPUT:
         category = 'sourceOutput'
-        break;
+        break
       case PASubscriptionEventType.MODULE:
         category = 'module'
-        break;
+        break
       case PASubscriptionEventType.CLIENT:
         category = 'client'
-        break;
+        break
       case PASubscriptionEventType.SAMPLE_CACHE:
         category = 'sampleCache'
-        break;
+        break
       case PASubscriptionEventType.SERVER:
         category = 'server'
-        break;
+        break
       case PASubscriptionEventType.AUTOLOAD:
         category = 'autoload'
-        break;
+        break
       case PASubscriptionEventType.CARD:
         category = 'card'
-        break;
+        break
       default:
         throw new Error(`Details type ${details} not supported. Please report issue.`)
     }
@@ -399,7 +398,7 @@ export default class PAClient extends EventEmitter {
     }
   }
 
-  private parseAddress(address: string): void {
+  private parseAddress (address: string): void {
     // reference = tcp:pulseaudio:4317
     if (address.includes('tcp')) {
       const split: string[] = address.split(':')
@@ -407,32 +406,22 @@ export default class PAClient extends EventEmitter {
         port: parseInt(split[2] ?? '4317'),
         host: split[1]
       }
-    }
-    // reference = unix:/run/pulse/pulseaudio.socket
-    // else if (address.includes('unix')) {
-    //   const split: string[] = address.split(':')
-    //   this.socketAddress = {
-    //     path: split[1]
-    //   }
-    // }
-    // reference = pulseaudio:4317
-    else if (address.includes(':')) {
+    } else if (address.includes(':')) {
       const split: string[] = address.split(':')
       this.pulseAddress = {
         port: parseInt(split[1] ?? '4317'),
         host: split[0]
       }
-    }
-    else {
+    } else {
       throw new Error('Unrecognized server address format. Please use "tcp:host:port", "unix:/path/to/socket" or "host:port".')
     }
   }
 
-  private parseCookie(cookiePath: string): void {
+  private parseCookie (cookiePath: string): void {
     try {
       this.pulseCookie = Buffer.from(readFileSync(cookiePath, 'hex'), 'hex')
     } catch (error) {
-      console.log(`Error reading cookie file, might not be able to authenticate.`)
+      console.log('Error reading cookie file, might not be able to authenticate.')
       console.log(error)
     }
   }

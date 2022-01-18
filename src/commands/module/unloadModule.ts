@@ -3,7 +3,7 @@ import PAPacket from '../../packet'
 import { Status } from '../../types/pulseaudio'
 
 interface UnloadModule extends PACommand<Status> {
-  query (requestId: number, moduleIndex: number): PAPacket
+  query: (requestId: number, moduleIndex: number) => PAPacket
 }
 
 // https://github.com/pulseaudio/pulseaudio/blob/v15.0/src/pulse/introspect.c#L1919
@@ -19,6 +19,7 @@ const reply = (_packet: PAPacket, _protocol: number): Status => {
   return { success: true }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 const UnloadModule: UnloadModule = {
   query,
   reply

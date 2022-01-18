@@ -36,7 +36,7 @@ export const enum PASubscriptionEventType {
 }
 
 export interface PAEvent {
-  category: string,
-  type: string,
-  index: number,
+  category: string
+  type: string
+  index: number
 }

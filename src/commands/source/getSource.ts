@@ -5,7 +5,7 @@ import { PA_NO_VALUE } from '../../protocol'
 import { parseSourcePacket } from '.'
 
 interface GetSource extends PACommand<Source> {
-  query (requestId: number, source: number | string): PAPacket
+  query: (requestId: number, source: number | string) => PAPacket
 }
 
 const query = (requestId: number, source: number | string): PAPacket => {
@@ -20,11 +20,12 @@ const query = (requestId: number, source: number | string): PAPacket => {
 const reply = (packet: PAPacket, protocol: number): Source => {
   const sinks = parseSourcePacket(packet, protocol)
   if (sinks.length !== 1) {
-    throw new Error("Expected exactly one sink!")
+    throw new Error('Expected exactly one sink!')
   }
   return sinks[0]
 }
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 const GetSource: GetSource = {
   query,
   reply

@@ -5,7 +5,7 @@ import { SinkInput } from '../../types/pulseaudio'
 import { parseSinkInputPacket } from '.'
 
 interface GetSinkInput extends PACommand<SinkInput> {
-  query (requestId: number, sinkInput: number | string): PAPacket
+  query: (requestId: number, sinkInput: number | string) => PAPacket
 }
 
 const query = (requestId: number, sinkInput: number | string): PAPacket => {
@@ -19,11 +19,12 @@ const query = (requestId: number, sinkInput: number | string): PAPacket => {
 const reply = (packet: PAPacket, _protocol: number): SinkInput => {
   const sinkInputs = parseSinkInputPacket(packet)
   if (sinkInputs.length !== 1) {
-    throw new Error("Expected exactly one sinkInput!")
+    throw new Error('Expected exactly one sinkInput!')
   }
   return sinkInputs[0]
 }
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 const GetSinkInput: GetSinkInput = {
   query,
   reply

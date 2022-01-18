@@ -17,14 +17,14 @@ export {
 export const parseModulePacket = (packet: PAPacket, _protocol: number): Module[] => {
   const modules: Module[] = []
   const tags = packet.getTagsIterable()
-  
+
   while (!tags.done) {
     const module: Module = {
       index: tags.nextValue(),
       name: tags.nextValue(),
       argument: tags.nextValue(),
       usageCounter: tags.nextValue(),
-      properties: tags.nextValue(),
+      properties: tags.nextValue()
     }
     modules.push(module)
   }
@@ -34,6 +34,6 @@ export const parseModulePacket = (packet: PAPacket, _protocol: number): Module[]
 // https://github.com/pulseaudio/pulseaudio/blob/v15.0/src/pulse/introspect.c#L1864
 export const parseIndexPacket = (packet: PAPacket, _protocol: number): Index => {
   const tags = packet.getTagsIterable()
-  const moduleIndex: Index = tags.nextValue()  
+  const moduleIndex: Index = tags.nextValue()
   return moduleIndex
 }

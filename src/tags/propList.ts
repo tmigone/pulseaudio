@@ -5,12 +5,11 @@ const PA_PROP_LIST_BASE_SIZE = 2
 // PulseAudio proplist tag structure by section
 // - 1 byte: tag type
 // - X bytes: [props]
-// - 1 byte: list terminator 
-export default class PAPropList extends PATag<[string, string][]> {
-
+// - 1 byte: list terminator
+export default class PAPropList extends PATag<Array<[string, string]>> {
   type: PATagType = PATagType.PA_TAG_PROPLIST
 
-  toTagBuffer(value: [string, string][]): Buffer {
+  toTagBuffer (value: Array<[string, string]>): Buffer {
     const props: PAProp[] = []
     value.map(val => props.push(new PAProp(val)))
 
@@ -18,13 +17,13 @@ export default class PAPropList extends PATag<[string, string][]> {
     return Buffer.concat(parts)
   }
 
-  fromTagBuffer(buffer: Buffer): [string, string][] {
+  fromTagBuffer (buffer: Buffer): Array<[string, string]> {
     // TODO: Validate buffer
     const values: PAProp[] = this.parseTag(buffer)
     return values.map(v => v.value)
   }
 
-  sanitizeBuffer(buffer: Buffer): Buffer {
+  sanitizeBuffer (buffer: Buffer): Buffer {
     const values: PAProp[] = this.parseTag(buffer)
     let propsSize: number = 0
     for (const val of values) {
@@ -33,13 +32,12 @@ export default class PAPropList extends PATag<[string, string][]> {
     return buffer.subarray(0, PA_PROP_LIST_BASE_SIZE + propsSize)
   }
 
-  isValidBuffer(buffer: Buffer): boolean {
+  isValidBuffer (buffer: Buffer): boolean {
     const tagType: PATagType = buffer.readUInt8(0)
     return tagType === PATagType.PA_TAG_PROPLIST.toString().charCodeAt(0)
   }
 
-  parseTag(buffer: Buffer): PAProp[] {
-
+  parseTag (buffer: Buffer): PAProp[] {
     // Check if proplist is empty
     if (buffer.subarray(0, 2).toString('hex') === '504e') {
       return []
@@ -49,7 +47,7 @@ export default class PAPropList extends PATag<[string, string][]> {
     const props: PAProp[] = []
     let done: boolean = false
     let index: number = 1
-    
+
     while (!done) {
       const prop = new PAProp(buffer.subarray(index))
       props.push(prop)
@@ -60,8 +58,8 @@ export default class PAPropList extends PATag<[string, string][]> {
     return props
   }
 
-  /* @ts-ignore */
-  isTagBuffer(buffer: Buffer): boolean {
+  /* @ts-expect-error */
+  isTagBuffer (buffer: Buffer): boolean {
     return true
   }
 }

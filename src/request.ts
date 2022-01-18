@@ -13,7 +13,7 @@ export default class PARequest {
   resolve: (value?: any) => any
   reject: (value?: any) => any
 
-  constructor(_id: number, _query: PAPacket) {
+  constructor (_id: number, _query: PAPacket) {
     this.id = _id
     this.query = _query
     this.promise = Promise.race<any>([

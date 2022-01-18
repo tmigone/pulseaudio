@@ -5,13 +5,13 @@ export interface Iterator<T> extends IterableIterator<T> {
   index: number
 }
 
-export function createIterator(array: any[]): Iterator<any> {
+export function createIterator (array: any[]): Iterator<any> {
   const iterator = array[Symbol.iterator]()
 
-  return { 
+  return {
     ...iterator,
     nextValue: function () {
-      if (this.done) {
+      if (this.done === true) {
         throw new Error('Iterator depleted!')
       }
       if (++this.index === this.length) this.done = true
@@ -22,4 +22,3 @@ export function createIterator(array: any[]): Iterator<any> {
     length: array.length
   }
 }
-

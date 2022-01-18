@@ -4,7 +4,7 @@ import { SourceOutput } from '../../types/pulseaudio'
 import { parseSourceOutputPacket } from '.'
 
 interface GetSourceOutputList extends PACommand<SourceOutput[]> {
-  query (requestId: number): PAPacket
+  query: (requestId: number) => PAPacket
 }
 
 const query = (requestId: number): PAPacket => {
@@ -18,6 +18,7 @@ const reply = (packet: PAPacket, _protocol: number): SourceOutput[] => {
   return parseSourceOutputPacket(packet)
 }
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 const GetSourceOutputList: GetSourceOutputList = {
   query,
   reply

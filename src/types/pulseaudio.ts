@@ -113,7 +113,7 @@ export interface SourceOutput {
   format?: Format
 }
 
-export type ChannelVolume = {
+export interface ChannelVolume {
   channels: number
   volumes: number[]
 }
@@ -129,9 +129,9 @@ export interface SampleSpec {
   rate: number
 }
 
-export type Format = {
+export interface Format {
   encoding: number
-  properties: [string, string][]
+  properties: Array<[string, string]>
 }
 
 export interface AuthInfo {

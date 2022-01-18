@@ -4,7 +4,7 @@ import { PA_PROTOCOL_VERSION } from '../../protocol'
 import { AuthInfo } from '../../types/pulseaudio'
 
 interface Authenticate extends PACommand<AuthInfo> {
-  query (requestId: number, cookie: Buffer): PAPacket
+  query: (requestId: number, cookie: Buffer) => PAPacket
 }
 
 const query = (requestId: number, cookie: Buffer): PAPacket => {
@@ -22,6 +22,7 @@ const reply = (packet: PAPacket): AuthInfo => {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 const Authenticate: Authenticate = {
   query,
   reply

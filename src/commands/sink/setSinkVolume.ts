@@ -4,7 +4,7 @@ import { ChannelVolume, VolumeInfo } from '../../types/pulseaudio'
 import { PA_NO_VALUE } from '../../protocol'
 
 interface SetSinkVolume extends PACommand<VolumeInfo> {
-  query (requestId: number, sink: number | string, channelVolumes: ChannelVolume): PAPacket
+  query: (requestId: number, sink: number | string, channelVolumes: ChannelVolume) => PAPacket
 }
 
 const query = (requestId: number, sink: number | string, channelVolumes: ChannelVolume): PAPacket => {
@@ -22,6 +22,7 @@ const reply = (_packet: PAPacket, _protocol: number): VolumeInfo => {
   return { success: true }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 const SetSinkVolume: SetSinkVolume = {
   query,
   reply

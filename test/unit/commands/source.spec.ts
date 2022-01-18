@@ -17,39 +17,39 @@ test.before(async _t => {
 })
 
 // GetSource
-test("GetSource query", t => {
+test('GetSource query', t => {
   const f = fixtures.source.getSource
-  const [ requestId, sourceIndex ] = f.queryParameters
+  const [requestId, sourceIndex] = f.queryParameters
   t.is(GetSource.query(requestId, sourceIndex).write().toString('hex'), f.queryBuffer)
 })
 
-test("GetSource reply", t => {
+test('GetSource reply', t => {
   const f = fixtures.source.getSource
   const packet = new PAPacket(Buffer.from(f.replyBuffer, 'hex'))
   t.deepEqual(GetSource.reply(packet, PA_PROTOCOL_MINIMUM_VERSION), JSONParse(JSONStringify(f.replyObject)))
 })
 
 // GetSourceList
-test("GetSourceList query", t => {
+test('GetSourceList query', t => {
   const f = fixtures.source.getSourceList
-  const [ requestId ] = f.queryParameters
+  const [requestId] = f.queryParameters
   t.is(GetSourceList.query(requestId).write().toString('hex'), f.queryBuffer)
 })
 
-test("GetSourceList reply", t => {
+test('GetSourceList reply', t => {
   const f = fixtures.source.getSourceList
   const packet = new PAPacket(Buffer.from(f.replyBuffer, 'hex'))
   t.deepEqual(GetSourceList.reply(packet, PA_PROTOCOL_MINIMUM_VERSION), JSONParse(JSONStringify(f.replyObject)))
 })
 
 // SetSourceVolume
-test("SetSourceVolume query", t => {
+test('SetSourceVolume query', t => {
   const f = fixtures.source.setSourceVolume
-  const [ requestId, sourceIndex, sourceVolume ] = f.queryParameters
+  const [requestId, sourceIndex, sourceVolume] = f.queryParameters
   t.is(SetSourceVolume.query(requestId, sourceIndex, sourceVolume).write().toString('hex'), f.queryBuffer)
 })
 
-test("SetSourceVolume reply", t => {
+test('SetSourceVolume reply', t => {
   const f = fixtures.source.setSourceVolume
   const packet = new PAPacket(Buffer.from(f.replyBuffer, 'hex'))
   t.deepEqual(SetSourceVolume.reply(packet, PA_PROTOCOL_MINIMUM_VERSION), JSONParse(JSONStringify(f.replyObject)))

@@ -61,19 +61,19 @@ export default class PAPacket {
   header: Buffer = PA_PACKET_HEADER
   command: PAU32
   requestId: PAU32
-  tags: PATag<any>[] = []
-  private debugPrint: boolean = process.env.DEBUG_PRINT !== undefined
+  tags: Array<PATag<any>> = []
+  private readonly debugPrint: boolean = process.env.DEBUG_PRINT !== undefined
 
-  constructor(buffer?: Buffer) {
-    if (buffer) {
+  constructor (buffer?: Buffer) {
+    if (buffer != null) {
       this.packet = Buffer.from(buffer.subarray(0, PAPacket.getPacketSize(buffer)))
       this.read(this.packet)
     }
   }
 
-  write(): Buffer {
+  write (): Buffer {
     // Calculate tagsSize
-    const allTags: PATag<any>[] = [this.command, this.requestId, ...this.tags]
+    const allTags: Array<PATag<any>> = [this.command, this.requestId, ...this.tags]
     this.tagsSize = allTags.reduce((sum, tag): number => {
       sum += tag.size
       return sum
@@ -94,16 +94,16 @@ export default class PAPacket {
     }
 
     if (this.debugPrint) {
-      fs.writeFileSync(`PAPacket.write.buffer`, this.packet.toString('hex'))
-      fs.writeFileSync(`PAPacket.write.tags`, JSONStringify(allTags))
+      fs.writeFileSync('PAPacket.write.buffer', this.packet.toString('hex'))
+      fs.writeFileSync('PAPacket.write.tags', JSONStringify(allTags))
     }
     return this.packet
   }
 
-  read(buffer: Buffer): void {
+  read (buffer: Buffer): void {
     // Sections: tagSize, header,
     if (!PAPacket.isValidPacket(buffer)) {
-      throw new Error(`Packet is not valid.`)
+      throw new Error('Packet is not valid.')
     }
 
     try {
@@ -122,43 +122,43 @@ export default class PAPacket {
         switch (tagType) {
           case PATagType.PA_TAG_U32.toString().charCodeAt(0):
             tag = new PAU32(tagsBuffer.subarray(offset))
-            break;
+            break
           case PATagType.PA_TAG_ARBITRARY.toString().charCodeAt(0):
             tag = new PAArbitrary(tagsBuffer.subarray(offset))
-            break;
+            break
           case PATagType.PA_TAG_STRING.toString().charCodeAt(0):
           case PATagType.PA_TAG_STRING_NULL.toString().charCodeAt(0):
             tag = new PAString(tagsBuffer.subarray(offset))
-            break;
+            break
           case PATagType.PA_TAG_BOOLEAN.toString().charCodeAt(0):
           case PATagType.PA_TAG_BOOLEAN_FALSE.toString().charCodeAt(0):
           case PATagType.PA_TAG_BOOLEAN_TRUE.toString().charCodeAt(0):
             tag = new PABoolean(tagsBuffer.subarray(offset))
-            break;
+            break
           case PATagType.PA_TAG_PROPLIST.toString().charCodeAt(0):
             tag = new PAPropList(tagsBuffer.subarray(offset))
-            break;
+            break
           case PATagType.PA_TAG_SAMPLE_SPEC.toString().charCodeAt(0):
             tag = new PASampleSpec(tagsBuffer.subarray(offset))
-            break;
+            break
           case PATagType.PA_TAG_CHANNEL_MAP.toString().charCodeAt(0):
             tag = new PAChannelMap(tagsBuffer.subarray(offset))
-            break;
+            break
           case PATagType.PA_TAG_CVOLUME.toString().charCodeAt(0):
             tag = new PAChannelVolume(tagsBuffer.subarray(offset))
-            break;
+            break
           case PATagType.PA_TAG_USEC.toString().charCodeAt(0):
             tag = new PAUsec(tagsBuffer.subarray(offset))
-            break;
+            break
           case PATagType.PA_TAG_VOLUME.toString().charCodeAt(0):
             tag = new PAVolume(tagsBuffer.subarray(offset))
-            break;
+            break
           case PATagType.PA_TAG_U8.toString().charCodeAt(0):
             tag = new PAU8(tagsBuffer.subarray(offset))
-            break;
+            break
           case PATagType.PA_TAG_FORMAT_INFO.toString().charCodeAt(0):
             tag = new PAFormat(tagsBuffer.subarray(offset))
-            break;
+            break
           default:
             throw new Error(`Tag type: ${tagType} not supported. Please report issue.`)
         }
@@ -169,14 +169,14 @@ export default class PAPacket {
       console.log(error)
     }
     if (this.debugPrint) {
-      fs.writeFileSync(`PAPacket.read.buffer`, buffer.toString('hex'))
-      fs.writeFileSync(`PAPacket.read.tags`, JSONStringify(this.tags))
+      fs.writeFileSync('PAPacket.read.buffer', buffer.toString('hex'))
+      fs.writeFileSync('PAPacket.read.tags', JSONStringify(this.tags))
     }
   }
 
   // Test wether a chunk is valid as a PA Packet start
   // Returns true even if the chunk is incomplete (chunk size < SectionLength.SIZE + SectionLength.HEADER + dataLength)
-  static isChunkHeader(chunk: Buffer): boolean {
+  static isChunkHeader (chunk: Buffer): boolean {
     if (chunk.length < SectionLength.SIZE + SectionLength.HEADER) {
       return false
     }
@@ -186,70 +186,73 @@ export default class PAPacket {
   }
 
   // Returns the size of split shunks in bytes
-  static getChunksSize(chunks: Buffer[]) {
-    return chunks.reduce((sum, chunk) => { return sum += chunk.length }, 0)
+  static getChunksSize (chunks: Buffer[]): number {
+    return chunks.reduce((sum, chunk) => {
+      sum += chunk.length
+      return sum
+    }, 0)
   }
 
   // Get size of the packet in bytes
-  static getPacketSize(buffer: Buffer) {
-    let tagsSize = buffer.readUInt32BE(SectionIndex.SIZE)
+  static getPacketSize (buffer: Buffer): number {
+    const tagsSize = buffer.readUInt32BE(SectionIndex.SIZE)
     return SectionLength.SIZE + SectionLength.HEADER + tagsSize
   }
 
   // Test wether a series of chunks can construct a valid PA Packet
   // Min requirements are starting with a chunk header and having enough bytes to complete the packet
-  static isValidPacket(chunks: Buffer | Buffer[]): boolean {
+  static isValidPacket (chunks: Buffer | Buffer[]): boolean {
     if (chunks instanceof Buffer) {
       chunks = [chunks]
     }
     if (chunks.length === 0) {
       return false
     }
-    let chunksSize: number = this.getChunksSize(chunks)
-    let dataLength: number = chunks[0].readUInt32BE(0)
+    const chunksSize: number = this.getChunksSize(chunks)
+    const dataLength: number = chunks[0].readUInt32BE(0)
 
     return this.isChunkHeader(chunks[0]) && chunksSize >= (SectionLength.SIZE + SectionLength.HEADER + dataLength)
   }
 
-  setCommand(value: number): void {
+  setCommand (value: number): void {
     this.command = new PAU32(value)
   }
 
-  setRequestId(value: number): void {
+  setRequestId (value: number): void {
     this.requestId = new PAU32(value)
   }
 
   // Put methods
   // https://github.com/pulseaudio/pulseaudio/blob/master/src/pulsecore/tagstruct.h#L70
-  putU32(value: number): void {
+  putU32 (value: number): void {
     this.tags.push(new PAU32(value))
   }
 
-  putBoolean(value: boolean): void {
+  putBoolean (value: boolean): void {
     this.tags.push(new PABoolean(value))
   }
 
-  putArbitrary(value: Buffer): void {
+  putArbitrary (value: Buffer): void {
     this.tags.push(new PAArbitrary(value))
   }
 
-  putString(value: string): void {
+  putString (value: string): void {
     this.tags.push(new PAString(value))
   }
 
-  putProp(value: [string, string]): void {
+  putProp (value: [string, string]): void {
     this.tags.push(new PAProp(value))
   }
 
-  putPropList(value: [string, string][]): void {
+  putPropList (value: Array<[string, string]>): void {
     this.tags.push(new PAPropList(value))
   }
 
-  putChannelVolume(value: ChannelVolume): void {
+  putChannelVolume (value: ChannelVolume): void {
     this.tags.push(new PAChannelVolume(value))
   }
 
-  getTagsIterable(): Iterator<PATag<any>> {
+  getTagsIterable (): Iterator<PATag<any>> {
     return createIterator(this.tags.map(t => t.value))
   }
 }

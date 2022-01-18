@@ -12,10 +12,10 @@ interface PATagTestCases<T> {
   }
 }
 
-// TODO: 
+// TODO:
 // Refactor this mess
 // Add tests with buffers bigger/smaller than expected
-const cases: PATagTestCases<any>[] = [
+const cases: Array<PATagTestCases<any>> = [
   {
     title: 'Create u32 from value',
     pa_tag: new PAU32(120),
@@ -238,12 +238,12 @@ const cases: PATagTestCases<any>[] = [
   },
   {
     title: 'Create usec from values',
-    pa_tag: new PAUsec(BigInt("0x1234123456785678")),
+    pa_tag: new PAUsec(BigInt('0x1234123456785678')),
     expected: {
       tag: Buffer.from('551234123456785678', 'hex'),
       size: 9,
       type: PATagType.PA_TAG_USEC,
-      value: BigInt("0x1234123456785678")
+      value: BigInt('0x1234123456785678')
     }
   },
   {
@@ -253,7 +253,7 @@ const cases: PATagTestCases<any>[] = [
       tag: Buffer.from('551234123456785678', 'hex'),
       size: 9,
       type: PATagType.PA_TAG_USEC,
-      value: BigInt("0x1234123456785678")
+      value: BigInt('0x1234123456785678')
     }
   },
   {
@@ -275,7 +275,7 @@ const cases: PATagTestCases<any>[] = [
       type: PATagType.PA_TAG_VOLUME,
       value: 65536
     }
-  },
+  }
   // {
   //   title: 'Create format from values',
   //   pa_tag: new PAFormat({ encoding: 1, properties: [] }),
@@ -299,7 +299,6 @@ const cases: PATagTestCases<any>[] = [
 ]
 
 for (const c of cases) {
-
   test(`${c.title}: type is correct`, t => {
     t.is(c.pa_tag.type, c.expected.type)
   })
@@ -316,5 +315,3 @@ for (const c of cases) {
     t.deepEqual(c.pa_tag.tag, c.expected.tag)
   })
 }
-
-

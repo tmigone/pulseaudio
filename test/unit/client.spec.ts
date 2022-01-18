@@ -34,6 +34,7 @@ test('PAClient.parseAdress: "host:port" address parsed correctly', t => {
 
 test('PAClient.parseAdress: "bad-address" address throws error', t => {
   t.throws(() => {
-    new PAClient('bad-address')
+    const client = new PAClient('bad-address')
+    console.log(client)
   })
 })
