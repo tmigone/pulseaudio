@@ -1,9 +1,9 @@
 import test from 'ava'
 import { loadFixture, Dictionary, Fixture } from '../fixtures'
-import { GetSink, GetSinkList, SetSinkVolume } from '../../src/commands/sink'
-import { PA_PROTOCOL_MINIMUM_VERSION } from '../../src/protocol'
-import PAPacket from '../../src/packet'
-import { JSONParse, JSONStringify } from '../../src/utils/bigInt'
+import { GetSink, GetSinkList, SetSinkVolume } from '../../../src/commands/sink'
+import { PA_PROTOCOL_MINIMUM_VERSION } from '../../../src/protocol'
+import PAPacket from '../../../src/packet'
+import { JSONParse, JSONStringify } from '../../../src/utils/bigInt'
 
 const fixtures: Dictionary<Fixture> = {}
 const fxToLoad = [

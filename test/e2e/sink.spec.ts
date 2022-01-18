@@ -1,12 +1,6 @@
 require('dotenv').config()
 import test from 'ava'
-import { loadFixture, Dictionary, Fixture } from '../fixtures'
 import PAClient from '../../src/client'
-
-const fixtures: Dictionary<Fixture> = {}
-const fxToLoad = [
-  'sink'
-]
 
 const { PULSE_SERVER_V13 } = process.env
 if (PULSE_SERVER_V13 === undefined) {
@@ -15,12 +9,6 @@ if (PULSE_SERVER_V13 === undefined) {
 let client: PAClient
 
 test.before(async _t => {
-  // Load fixtures
-  for (const fx of fxToLoad) {
-    fixtures[fx] = await loadFixture(fx)
-  }
-
-  // Connect to PA
   client = new PAClient(PULSE_SERVER_V13)
   await client.connect()
 })

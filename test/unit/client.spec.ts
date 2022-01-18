@@ -1,5 +1,5 @@
 import test from 'ava'
-import PAClient from '../src/client'
+import PAClient from '../../src/client'
 
 test('PAClient.parseAdress: "tcp:host:port" address parsed correctly', t => {
   const client: PAClient = new PAClient('tcp:localhost:1234')

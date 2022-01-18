@@ -1,9 +1,9 @@
 import test from 'ava'
 import { loadFixture, Dictionary, Fixture } from '../fixtures'
-import { PA_PROTOCOL_MINIMUM_VERSION } from '../../src/protocol'
-import PAPacket from '../../src/packet'
-import { JSONParse, JSONStringify } from '../../src/utils/bigInt'
-import { SetClientName } from '../../src/commands/client'
+import { PA_PROTOCOL_MINIMUM_VERSION } from '../../../src/protocol'
+import PAPacket from '../../../src/packet'
+import { JSONParse, JSONStringify } from '../../../src/utils/bigInt'
+import { SetClientName } from '../../../src/commands/client'
 
 const fixtures: Dictionary<Fixture> = {}
 const fxToLoad = [
