@@ -2,16 +2,16 @@
 /* eslint-disable import/first */
 require('dotenv').config()
 import test from 'ava'
-import PAClient from '../../src/client'
+import PulseAudio from '../../src/client'
 
 const { PULSE_SERVER_V13 } = process.env
 if (PULSE_SERVER_V13 === undefined) {
   throw new Error('PULSE_SERVER_V13 environment variable is not set')
 }
-let client: PAClient
+let client: PulseAudio
 
 test.before(async _t => {
-  client = new PAClient(PULSE_SERVER_V13)
+  client = new PulseAudio(PULSE_SERVER_V13)
   await client.connect()
 })
 

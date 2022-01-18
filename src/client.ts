@@ -35,7 +35,7 @@ interface TCPSocket {
   host: string
 }
 
-export default class PAClient extends EventEmitter {
+export default class PulseAudio extends EventEmitter {
   public pulseAddress: TCPSocket
   public pulseCookie: Buffer = Buffer.allocUnsafe(256)
   public connected: boolean = false

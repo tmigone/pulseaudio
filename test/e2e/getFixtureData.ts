@@ -3,7 +3,7 @@
 require('dotenv').config()
 import * as fs from 'fs'
 import * as path from 'path'
-import PAClient from '../../src/client'
+import PulseAudio from '../../src/client'
 import { JSONStringify } from '../../src/utils/bigInt'
 
 void (async () => {
@@ -17,7 +17,7 @@ void (async () => {
     .filter(f => /^PAPacket\./.test(f) || f === 'PACommand.data')
     .map(f => fs.unlinkSync(path.join(process.cwd(), f)))
 
-  const client: PAClient = new PAClient(PULSE_SERVER_V13)
+  const client: PulseAudio = new PulseAudio(PULSE_SERVER_V13)
   await client.connect()
 
   process.env.DEBUG_PRINT = 'true'
