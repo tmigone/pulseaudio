@@ -15,7 +15,9 @@ export default class PAChannelMap extends PATag<ChannelMap> {
     let offset: number = 0
     offset = buffer.writeUInt8(PATagType.PA_TAG_CHANNEL_MAP.toString().charCodeAt(0), offset)
     offset = buffer.writeUInt8(value.channels, offset)
-    value.types.map(type => buffer.writeUInt8(type, offset))
+    // TODO: figure out why abiding to the eslint rule below makes tests fail
+    // eslint-disable-next-line no-return-assign
+    value.types.map(type => offset = buffer.writeUInt8(type, offset))
     return buffer
   }
 

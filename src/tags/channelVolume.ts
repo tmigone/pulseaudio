@@ -15,7 +15,9 @@ export default class PAChannelVolume extends PATag<ChannelVolume> {
     let offset: number = 0
     offset = buffer.writeUInt8(PATagType.PA_TAG_CVOLUME.toString().charCodeAt(0), offset)
     offset = buffer.writeUInt8(value.channels, offset)
-    value.volumes.map(volume => buffer.writeUInt32BE(volume, offset))
+    // TODO: figure out why abiding to the eslint rule below makes tests fail
+    // eslint-disable-next-line no-return-assign
+    value.volumes.map(volume => offset = buffer.writeUInt32BE(volume, offset))
     return buffer
   }
 
