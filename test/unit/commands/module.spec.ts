@@ -1,6 +1,6 @@
 import test from 'ava'
 import { loadFixture, Dictionary, Fixture } from '../fixtures'
-import { GetModule, GetModuleList, LoadModule } from '../../../src/commands/module'
+import { GetModule, GetModuleList, LoadModule, UnloadModule } from '../../../src/commands/module'
 import { PA_PROTOCOL_MINIMUM_VERSION } from '../../../src/protocol'
 import PAPacket from '../../../src/packet'
 import { JSONParse, JSONStringify } from '../../../src/utils/bigInt'
@@ -53,4 +53,17 @@ test('LoadModule reply', t => {
   const f = fixtures.module.loadModule
   const packet = new PAPacket(Buffer.from(f.replyBuffer, 'hex'))
   t.deepEqual(LoadModule.reply(packet, PA_PROTOCOL_MINIMUM_VERSION), JSONParse(JSONStringify(f.replyObject)))
+})
+
+// UnloadModule
+test('UnloadModule query', t => {
+  const f = fixtures.module.unloadModule
+  const [requestId, moduleIndex] = f.queryParameters
+  t.is(UnloadModule.query(requestId, moduleIndex).write().toString('hex'), f.queryBuffer)
+})
+
+test('UnloadModule reply', t => {
+  const f = fixtures.module.unloadModule
+  const packet = new PAPacket(Buffer.from(f.replyBuffer, 'hex'))
+  t.deepEqual(UnloadModule.reply(packet, PA_PROTOCOL_MINIMUM_VERSION), JSONParse(JSONStringify(f.replyObject)))
 })
