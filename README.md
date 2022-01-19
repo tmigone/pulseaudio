@@ -6,7 +6,7 @@
 
 ### Features
 - Zero dependency fully typed TypeScript implementation of the PulseAudio client protocol
-- Extensive testing suite (code coverage tracker coming soon)
+- Extensive testing suite
 - Protocol features: 
   - authentication - provide authentication data for the server
   - transport - connect over UNIX domain sockets or TCP sockets

@@ -23,7 +23,7 @@ void (async () => {
   process.env.DEBUG_PRINT = 'true'
 
   //
-  const data = await client.unloadModule(30) // Edit command here
+  const data = await client.getSource('testme.monitor') // Edit command here
   //
 
   fs.writeFileSync('PACommand.data', JSONStringify(data))

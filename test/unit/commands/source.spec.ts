@@ -23,6 +23,12 @@ test('GetSource query', t => {
   t.is(GetSource.query(requestId, sourceIndex).write().toString('hex'), f.queryBuffer)
 })
 
+test('GetSource query by name', t => {
+  const f = fixtures.source.getSource
+  const [requestId, sourceName] = f.queryParameters
+  t.is(GetSource.query(requestId, sourceName).write().toString('hex'), f.queryBuffer)
+})
+
 test('GetSource reply', t => {
   const f = fixtures.source.getSource
   const packet = new PAPacket(Buffer.from(f.replyBuffer, 'hex'))

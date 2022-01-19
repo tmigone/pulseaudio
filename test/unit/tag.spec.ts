@@ -57,13 +57,23 @@ const cases: Array<PATagTestCases<any>> = [
     }
   },
   {
-    title: 'Create boolean from value',
+    title: 'Create boolean from value (false)',
     pa_tag: new PABoolean(false),
     expected: {
       tag: Buffer.from('30', 'hex'),
       size: 1,
       type: PATagType.PA_TAG_BOOLEAN,
       value: false
+    }
+  },
+  {
+    title: 'Create boolean from value (true)',
+    pa_tag: new PABoolean(true),
+    expected: {
+      tag: Buffer.from('31', 'hex'),
+      size: 1,
+      type: PATagType.PA_TAG_BOOLEAN,
+      value: true
     }
   },
   {
