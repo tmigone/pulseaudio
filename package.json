@@ -16,7 +16,7 @@
     "lint": "ts-standard",
     "lint:fix": "ts-standard --fix",
     "pre-commit": "lint-staged",
-    "coverage": "nyc report --reporter=text-lcov"
+    "coverage": "nyc npm run test:unit && nyc report --reporter=lcovonly"
   },
   "repository": {
     "type": "git",
