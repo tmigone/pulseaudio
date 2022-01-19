@@ -9,15 +9,17 @@ import {
   ServerInfo,
   Sink,
   SubscribeInfo,
-  VolumeInfo
+  VolumeInfo,
+  Module,
+  Source,
+  SinkInput,
+  SourceOutput
 } from './types/pulseaudio'
 
 export default PulseAudio
-export {
-  PulseAudio
-}
 
 export {
+  PulseAudio,
   AuthInfo,
   ChannelVolume,
   ChannelMap,
@@ -26,6 +28,10 @@ export {
   SampleSpec,
   ServerInfo,
   Sink,
+  Module,
+  Source,
+  SinkInput,
+  SourceOutput,
   SubscribeInfo,
   VolumeInfo
 }

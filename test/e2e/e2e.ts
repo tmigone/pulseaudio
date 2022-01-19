@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable import/first */
 require('dotenv').config()
-import PulseAudio from '../../src/client'
+import PulseAudio, { Sink } from '../../src/index'
 
 void (async () => {
   const { PULSE_SERVER_V13 } = process.env
@@ -11,6 +11,11 @@ void (async () => {
 
   const client: PulseAudio = new PulseAudio(PULSE_SERVER_V13)
   await client.connect()
-  console.log(await client.getSourceList())
+
+  const sinks: Sink[] = await client.getSinkList()
+  for (const sink of sinks) {
+    await client.setSinkVolume(sink.index, 50)
+  }
+
   client.disconnect()
 })()
