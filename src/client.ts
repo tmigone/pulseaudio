@@ -35,6 +35,9 @@ interface TCPSocket {
   host: string
 }
 
+/**
+ * @noInheritDoc
+ */
 export default class PulseAudio extends EventEmitter {
   public pulseAddress: TCPSocket
   public pulseCookie: Buffer = Buffer.allocUnsafe(256)
@@ -107,31 +110,49 @@ export default class PulseAudio extends EventEmitter {
     return await this.sendRequest(query)
   }
 
+  /**
+  * @category sink
+  */
   async getSink (sink: number | string): Promise<Sink> {
     const query: PAPacket = GetSink.query(this.requestId(), sink)
     return await this.sendRequest(query)
   }
 
+  /**
+  * @category sink
+  */
   async getSinkList (): Promise<Sink[]> {
     const query: PAPacket = GetSinkList.query(this.requestId())
     return await this.sendRequest(query)
   }
 
+  /**
+  * @category sink
+  */
   async setSinkVolume (sink: number | string, volume: number): Promise<VolumeInfo> {
     const query: PAPacket = SetSinkVolume.query(this.requestId(), sink, { channels: 2, volumes: [volume, volume] })
     return await this.sendRequest(query)
   }
 
+  /**
+  * @category sink
+  */
   async getSinkInputList (): Promise<Sink[]> {
     const query: PAPacket = GetSinkInputList.query(this.requestId())
     return await this.sendRequest(query)
   }
 
+  /**
+  * @category sink
+  */
   async getSinkInput (sinkInput: number | string): Promise<SinkInput> {
     const query: PAPacket = GetSinkInput.query(this.requestId(), sinkInput)
     return await this.sendRequest(query)
   }
 
+  /**
+  * @category sink
+  */
   async moveSinkInput (sinkInput: number, destSink: number): Promise<any> {
     const query: PAPacket = MoveSinkInput.query(this.requestId(), sinkInput, destSink)
     return await this.sendRequest(query)
