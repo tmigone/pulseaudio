@@ -36,30 +36,84 @@ interface TCPSocket {
 }
 
 /**
+ * Implements the PulseAudio client.
+ *
+ * **Basic usage**
+ *
+ * ```ts
+ * import PulseAudio, { Sink } from '@tmigone/pulseaudio'
+ *
+ * (async () => {
+ *   // Connect using tcp socket
+ *   const client: PulseAudio = new PulseAudio('tcp:192.168.1.10:4317')
+ *   await client.connect()
+ *
+ *   // Set volume of all sinks to 50%
+ *   const sinks: Sink[] = await client.getSinkList()
+ *   for (const sink of sinks) {
+ *     await client.setSinkVolume(sink.index, 50)
+ *   }
+ *
+ *   // Close connection
+ *   client.disconnect()
+ * })()
+ * ```
  * @noInheritDoc
  */
 export default class PulseAudio extends EventEmitter {
-  public pulseAddress: TCPSocket
-  public pulseCookie: Buffer = Buffer.allocUnsafe(256)
+  /**
+  * @category public
+  */
+  public address: TCPSocket
+  /**
+  * @category public
+  */
+  public cookie: Buffer = Buffer.allocUnsafe(256)
+  /**
+  * @category public
+  */
   public connected: boolean = false
+  /**
+  * @category public
+  */
+  public protocol: number = 0
   private socket: Socket
   private chunks: Buffer[] = []
   private requests: PARequest[] = []
   private lastRequestId: number = 0
-  private protocol: number = 0
 
-  constructor (address: string, cookiePath?: string) {
+  /**
+  * Instantiate a PulseAudio client by providing the server address.
+  * PulseAudio server defaults to the following:
+  * - UNIX socket: `/run/user/<user_id>/pulse/native`
+  * - TCP port: `4317`
+  *
+  * ```typescript
+  * // Using UNIX socket
+  * const client: PulseAudio = new PulseAudio('unix:/run/user/1001/pulse/native')
+  *
+  * // Using TCP socket
+  * const client: PulseAudio = new PulseAudio('tcp:localhost:4317')
+  * ```
+  * @category PulseAudio
+  * @param address The address of the PulseAudio server. Can be either the path to a UNIX domain socket or the network address of the server. For UNIX sockets prepend `unix:` to the path. For TCP sockets the format is `tcp:<host>:<port>`.
+  * @param cookie The path to the cookie to use when authenticating with the server. Typically located at `~/.config/pulse/cookie`.
+  */
+  constructor (address: string, cookie?: string) {
     super()
     this.parseAddress(address)
-    if (cookiePath !== undefined) this.parseCookie(cookiePath)
+    if (cookie !== undefined) this.parseCookie(cookie)
   }
 
-  // Client APIs
+  /**
+  * Connects the client to the PulseAudio server. Won't retry if the server is not reachable or the connection attempt is refused. Times out after 5 seconds.
+  * @category client
+  */
   async connect (): Promise<AuthInfo> {
     return await new Promise<AuthInfo>((resolve, reject) => {
       this.socket = new Socket()
       this.socket.setTimeout(5_000)
-      this.socket.connect(this.pulseAddress.port, this.pulseAddress.host)
+      this.socket.connect(this.address.port, this.address.host)
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       this.socket.on('connect', async () => {
         this.connected = true
@@ -67,7 +121,7 @@ export default class PulseAudio extends EventEmitter {
         // Authenticate client
         const reply: AuthInfo = await this.authenticate()
         this.protocol = reply.protocol
-        console.log(`Connected to PulseAudio at ${this.pulseAddress.host}:${this.pulseAddress.port} using protocol v${this.protocol}`)
+        console.log(`Connected to PulseAudio at ${this.address.host}:${this.address.port} using protocol v${this.protocol}`)
 
         if (reply.protocol < PA_PROTOCOL_MINIMUM_VERSION) {
           this.disconnect()
@@ -79,39 +133,58 @@ export default class PulseAudio extends EventEmitter {
       this.socket.on('readable', this.onReadable.bind(this))
       this.socket.on('error', reject)
       this.socket.on('timeout', () => {
-        console.log(`Socket timed out! Cannot reach PulseAudio server at ${this.pulseAddress.host}:${this.pulseAddress.port}`)
+        console.log(`Socket timed out! Cannot reach PulseAudio server at ${this.address.host}:${this.address.port}`)
         this.disconnect()
       })
     })
   }
 
+  /**
+  * Disconnect the client from the PulseAudio server. Waits for the server to close the connection.
+  * @category client
+  */
   disconnect (): void {
     this.socket.removeAllListeners()
     this.socket.end()
   }
 
-  async authenticate (): Promise<AuthInfo> {
-    const query: PAPacket = Authenticate.query(this.requestId(), this.pulseCookie)
+  /**
+  * Specify the client name passed to the server when connecting.
+  * @category client
+  * @param clientName The client name. Defaults to `paclient`.
+  */
+  async setClientName (clientName: string = 'paclient'): Promise<ClientInfo> {
+    const query: PAPacket = SetClientName.query(this.requestId(), clientName)
     return await this.sendRequest(query)
   }
 
+  private async authenticate (): Promise<AuthInfo> {
+    const query: PAPacket = Authenticate.query(this.requestId(), this.cookie)
+    return await this.sendRequest(query)
+  }
+
+  /**
+  * Subscribe to PulseAudio server events.
+  * @category server
+  */
   async subscribe (): Promise<SubscribeInfo> {
     const query: PAPacket = Subscribe.query(this.requestId())
     return await this.sendRequest(query)
   }
 
-  async setClientName (clientName?: string): Promise<ClientInfo> {
-    const query: PAPacket = SetClientName.query(this.requestId(), clientName)
-    return await this.sendRequest(query)
-  }
-
+  /**
+  * Gets PulseAudio server information.
+  * @category server
+  */
   async getServerInfo (): Promise<ServerInfo> {
     const query: PAPacket = GetServerInfo.query(this.requestId())
     return await this.sendRequest(query)
   }
 
   /**
+  * Gets details for the sink instance identified by the specified symbolic name or numeric index.
   * @category sink
+  * @param sink The symbolic name or numerical index of the sink instance to get details for.
   */
   async getSink (sink: number | string): Promise<Sink> {
     const query: PAPacket = GetSink.query(this.requestId(), sink)
@@ -119,6 +192,7 @@ export default class PulseAudio extends EventEmitter {
   }
 
   /**
+  * Gets details for all sink instances.
   * @category sink
   */
   async getSinkList (): Promise<Sink[]> {
@@ -127,7 +201,10 @@ export default class PulseAudio extends EventEmitter {
   }
 
   /**
+  * Sets the volume of the specified sink (identified by its symbolic name or numerical index).
   * @category sink
+  * @param sink The symbolic name or numerical index of the sink to set the volume of.
+  * @param volume The volume to set the source to in percentage (0% - 100%).
   */
   async setSinkVolume (sink: number | string, volume: number): Promise<VolumeInfo> {
     const query: PAPacket = SetSinkVolume.query(this.requestId(), sink, { channels: 2, volumes: [volume, volume] })
@@ -135,7 +212,8 @@ export default class PulseAudio extends EventEmitter {
   }
 
   /**
-  * @category sink
+  * Gets details for all sink input instances.
+  * @category sinkInput
   */
   async getSinkInputList (): Promise<Sink[]> {
     const query: PAPacket = GetSinkInputList.query(this.requestId())
@@ -143,7 +221,9 @@ export default class PulseAudio extends EventEmitter {
   }
 
   /**
-  * @category sink
+  * Gets details for the sink input instance identified by the specified symbolic name or numeric index.
+  * @category sinkInput
+  * @param sinkInput The symbolic name or numerical index of the sink input instance to get details for.
   */
   async getSinkInput (sinkInput: number | string): Promise<SinkInput> {
     const query: PAPacket = GetSinkInput.query(this.requestId(), sinkInput)
@@ -151,60 +231,120 @@ export default class PulseAudio extends EventEmitter {
   }
 
   /**
-  * @category sink
+  * Move the specified playback stream (identified by its numerical index) to the specified sink (identified by its numerical index).
+  * @category sinkInput
+  * @param sinkInput The numerical index of the playback stream to move.
+  * @param sink The numerical index of the sink to move the playback stream to.
   */
-  async moveSinkInput (sinkInput: number, destSink: number): Promise<any> {
-    const query: PAPacket = MoveSinkInput.query(this.requestId(), sinkInput, destSink)
+  async moveSinkInput (sinkInput: number, sink: number): Promise<any> {
+    const query: PAPacket = MoveSinkInput.query(this.requestId(), sinkInput, sink)
     return await this.sendRequest(query)
   }
 
+  /**
+  * Gets details for the source instance identified by the specified symbolic name or numeric index.
+  * @category source
+  * @param source The symbolic name or numerical index of the source instance to get details for.
+  */
   async getSource (source: number | string): Promise<Source> {
     const query: PAPacket = GetSource.query(this.requestId(), source)
     return await this.sendRequest(query)
   }
 
+  /**
+  * Gets details for all source instances.
+  * @category source
+  */
   async getSourceList (): Promise<Source> {
     const query: PAPacket = GetSourceList.query(this.requestId())
     return await this.sendRequest(query)
   }
 
+  /**
+  * Sets the volume of the specified source (identified by its symbolic name or numerical index).
+  * @category source
+  * @param source The symbolic name or numerical index of the source to set the volume of.
+  * @param volume The volume to set the source to in percentage (0% - 100%).
+  */
   async setSourceVolume (source: number | string, volume: number): Promise<Source> {
     const query: PAPacket = SetSourceVolume.query(this.requestId(), source, { channels: 2, volumes: [volume, volume] })
     return await this.sendRequest(query)
   }
 
+  /**
+  * Gets details for the source output instance identified by the specified numeric index.
+  * @category sourceOutput
+  * @param sourceOutput The numerical index of the source output instance to get details for.
+  */
   async getSourceOutput (sourceOutput: number | string): Promise<SourceOutput> {
     const query: PAPacket = GetSourceOutput.query(this.requestId(), sourceOutput)
     return await this.sendRequest(query)
   }
 
+  /**
+  * Gets details for all source output instances.
+  * @category sourceOutput
+  */
   async getSourceOutputList (): Promise<SourceOutput> {
     const query: PAPacket = GetSourceOutputList.query(this.requestId())
     return await this.sendRequest(query)
   }
 
-  async moveSourceOutput (sourceOutput: number, destSource: number): Promise<SourceOutput> {
-    const query: PAPacket = MoveSourceOutput.query(this.requestId(), sourceOutput, destSource)
+  /**
+  * Move the specified recording stream (identified by its numerical index) to the specified source (identified by its numerical index).
+  * @category sourceOutput
+  * @param sourceOutput The numerical index of the recording stream to move.
+  * @param source The numerical index of the source to move the recording stream to.
+  */
+  async moveSourceOutput (sourceOutput: number, source: number): Promise<SourceOutput> {
+    const query: PAPacket = MoveSourceOutput.query(this.requestId(), sourceOutput, source)
     return await this.sendRequest(query)
   }
 
-  async getModule (moduleIndex: number): Promise<Module> {
-    const query: PAPacket = GetModule.query(this.requestId(), moduleIndex)
+  /**
+  * Gets details for the module instance identified by the specified numeric index.
+  * @category module
+  * @param module The numerical index of the module instance to get details for.
+  */
+  async getModule (module: number): Promise<Module> {
+    const query: PAPacket = GetModule.query(this.requestId(), module)
     return await this.sendRequest(query)
   }
 
+  /**
+  * Gets details for all loaded module instances.
+  * @category module
+  */
   async getModuleList (): Promise<Module> {
     const query: PAPacket = GetModuleList.query(this.requestId())
     return await this.sendRequest(query)
   }
 
+  /**
+  * Load the specified module with the specified arguments into the running sound server. Prints the numeric index of the module just loaded to STDOUT. You can use it to unload the module later.
+   *
+   * **Example**
+   *
+   * ```typescript
+   * const moduleIndex = await client.loadModule('module-loopback', 'source=alsa_output.dac.stereo-fallback.monitor sink=app-output')
+   * console.log(moduleIndex) // moduleIndex: 27
+   * ```
+  * @category module
+  * @param name The name of the module to load.
+  * @param argument Space separated list of arguments to pass to the module.
+  */
   async loadModule (name: string, argument: string): Promise<Module> {
     const query: PAPacket = LoadModule.query(this.requestId(), name, argument)
     return await this.sendRequest(query)
   }
 
-  async unloadModule (moduleIndex: number): Promise<Module> {
-    const query: PAPacket = UnloadModule.query(this.requestId(), moduleIndex)
+  /**
+  * Unload the module instance identified by the specified numeric index.
+  * @category module
+  * @param module The numeric index of the module to unload.
+  */
+  async unloadModule (module: number): Promise<Module> {
+    const query: PAPacket = UnloadModule.query(this.requestId(), module)
     return await this.sendRequest(query)
   }
 
@@ -423,13 +563,13 @@ export default class PulseAudio extends EventEmitter {
     // reference = tcp:pulseaudio:4317
     if (address.includes('tcp')) {
       const split: string[] = address.split(':')
-      this.pulseAddress = {
+      this.address = {
         port: parseInt(split[2] ?? '4317'),
         host: split[1]
       }
     } else if (address.includes(':')) {
       const split: string[] = address.split(':')
-      this.pulseAddress = {
+      this.address = {
         port: parseInt(split[1] ?? '4317'),
         host: split[0]
       }
@@ -440,7 +580,7 @@ export default class PulseAudio extends EventEmitter {
 
   private parseCookie (cookiePath: string): void {
     try {
-      this.pulseCookie = Buffer.from(readFileSync(cookiePath, 'hex'), 'hex')
+      this.cookie = Buffer.from(readFileSync(cookiePath, 'hex'), 'hex')
     } catch (error) {
       console.log('Error reading cookie file, might not be able to authenticate.')
       console.log(error)

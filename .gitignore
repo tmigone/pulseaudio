@@ -112,3 +112,5 @@ test/docker/docker-compose.yml
 PAPacket.read.*
 PAPacket.write.*
 PACommand.*
+
+typedoc

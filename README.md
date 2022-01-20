@@ -42,3 +42,7 @@ import PulseAudio from '@tmigone/pulseaudio'
   client.disconnect()
 })()
 ```
+
+## Documentation
+
+Visit the [docs site](pulseaudio.tmigone.com) for in depth documentation on the library API's.

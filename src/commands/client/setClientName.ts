@@ -6,7 +6,7 @@ interface SetClientName extends PACommand<ClientInfo> {
   query: (requestId: number, name?: string) => PAPacket
 }
 
-const query = (requestId: number, clientName: string = 'palib-client'): PAPacket => {
+const query = (requestId: number, clientName: string): PAPacket => {
   const packet: PAPacket = new PAPacket()
   packet.setCommand(PA_NATIVE_COMMAND_NAMES.PA_COMMAND_SET_CLIENT_NAME)
   packet.setRequestId(requestId)
