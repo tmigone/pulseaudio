@@ -24,7 +24,7 @@ npm install @tmigone/pulseaudio
 ## Usage
 
 ```ts
-import PulseAudio from '@tmigone/pulseaudio'
+import PulseAudio, { Sink } from '@tmigone/pulseaudio'
 
 (async () => {
   // Connect using tcp or unix socket
@@ -45,4 +45,4 @@ import PulseAudio from '@tmigone/pulseaudio'
 
 ## Documentation
 
-Visit the [docs site](pulseaudio.tmigone.com) for in depth documentation on the library API's.
+Visit the [docs site](http://pulseaudio.tmigone.com) for in depth documentation on the library API's.
