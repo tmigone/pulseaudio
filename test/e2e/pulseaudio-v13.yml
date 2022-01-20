@@ -1,0 +1,17 @@
+version: '2'
+
+volumes:
+  pulse:
+
+services:
+
+  # https://github.com/balenablocks/audio/blob/v0.4.0/Dockerfile.template#L19
+  pulseaudio:
+    image: balenablocks/audio:aarch64-0.4.0
+    privileged: true
+    labels:
+      io.balena.features.dbus: 1
+    ports:
+      - 4317:4317
+    volumes:
+      - 'pulse:/run/pulse'

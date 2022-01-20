@@ -1,0 +1,34 @@
+{
+  "queryParameters": [2, "testme.monitor"],
+  "queryBuffer": "0000001fffffffff0000000000000000000000004c000000174c000000024cffffffff74746573746d652e6d6f6e69746f7200",
+  "replyBuffer": "00000135ffffffff0000000000000000000000004c000000024c000000024c0000000274746573746d652e6d6f6e69746f7200744d6f6e69746f72206f66204e756c6c204f7574707574006103020000ac446d0201024c0000001976020001000000010000304c0000000274746573746d6500550000000000000000746d6f64756c652d6e756c6c2d73696e6b2e63004c0000006250746465766963652e6465736372697074696f6e004c0000001778000000174d6f6e69746f72206f66204e756c6c204f757470757400746465766963652e636c617373004c0000000878000000086d6f6e69746f7200746465766963652e69636f6e5f6e616d65004c000000177800000017617564696f2d696e7075742d6d6963726f70686f6e65004e55000000000001046a56000100004c000000004c000100014cffffffff4c000000004e4201664201504e",
+  "replyObject": {
+    "index": 2,
+    "name": "testme.monitor",
+    "description": "Monitor of Null Output",
+    "sampleSpec": { "format": 3, "channels": 2, "rate": 44100 },
+    "channelMap": { "channels": 2, "types": [1, 2] },
+    "moduleIndex": 25,
+    "channelVolume": { "channels": 2, "volumes": [65536, 65536] },
+    "isMuted": false,
+    "monitorSinkIndex": 2,
+    "monitorSinkName": "testme",
+    "latency": "0n",
+    "driverName": "module-null-sink.c",
+    "flagsRaw": 98,
+    "properties": [
+      ["device.description", "Monitor of Null Output"],
+      ["device.class", "monitor"],
+      ["device.icon_name", "audio-input-microphone"]
+    ],
+    "configLatency": "66666n",
+    "baseVolume": 65536,
+    "state": 0,
+    "volumeSteps": 65537,
+    "cardIndex": 4294967295,
+    "numberPorts": 0,
+    "ports": [],
+    "activePortName": "",
+    "formats": [{ "encoding": 1, "properties": [] }]
+  }
+}

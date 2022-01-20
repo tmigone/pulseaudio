@@ -10,7 +10,7 @@ import { Format } from '../types/pulseaudio'
 export default class PAFormat extends PATag<Format> {
   type: PATagType = PATagType.PA_TAG_FORMAT_INFO
 
-  toTagBuffer(values: Format): Buffer {
+  toTagBuffer (values: Format): Buffer {
     const parts: Buffer[] = []
 
     parts.push(Buffer.from(PATagType.PA_TAG_FORMAT_INFO))
@@ -19,23 +19,23 @@ export default class PAFormat extends PATag<Format> {
     const buffer: Buffer = Buffer.allocUnsafe(1)
     buffer.writeUInt8(values.encoding)
     parts.push(buffer)
-    
+
     const props: PAPropList = new PAPropList(values.properties)
     parts.push(props.tag)
 
     return Buffer.concat(parts)
   }
 
-  fromTagBuffer(buffer: Buffer): Format {
+  fromTagBuffer (buffer: Buffer): Format {
     return this.parseTag(buffer)
   }
 
-  sanitizeBuffer(buffer: Buffer): Buffer {
+  sanitizeBuffer (buffer: Buffer): Buffer {
     const props: PAPropList = new PAPropList(buffer.subarray(3))
     return buffer.subarray(0, props.size + 3)
   }
 
-  parseTag(buffer: Buffer): Format {
+  parseTag (buffer: Buffer): Format {
     const encoding: number = buffer.readUInt8(2)
     const props: PAPropList = new PAPropList(buffer.subarray(3))
     return {
@@ -44,13 +44,13 @@ export default class PAFormat extends PATag<Format> {
     }
   }
 
-  isValidBuffer(buffer: Buffer): boolean {
+  isValidBuffer (buffer: Buffer): boolean {
     const tagType: PATagType = buffer.readUInt8(0)
     return tagType === PATagType.PA_TAG_FORMAT_INFO.toString().charCodeAt(0)
   }
 
-  /* @ts-ignore */
-  isTagBuffer(buffer: Buffer): boolean {
+  /* @ts-expect-error */
+  isTagBuffer (buffer: Buffer): boolean {
     return true
   }
 }

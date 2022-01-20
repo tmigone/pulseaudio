@@ -1,4 +1,4 @@
-import PAClient from './client'
+import PulseAudio from './client'
 import {
   AuthInfo,
   ChannelVolume,
@@ -9,12 +9,17 @@ import {
   ServerInfo,
   Sink,
   SubscribeInfo,
-  VolumeInfo
+  VolumeInfo,
+  Module,
+  Source,
+  SinkInput,
+  SourceOutput
 } from './types/pulseaudio'
 
-export default PAClient
+export default PulseAudio
 
 export {
+  PulseAudio,
   AuthInfo,
   ChannelVolume,
   ChannelMap,
@@ -23,6 +28,10 @@ export {
   SampleSpec,
   ServerInfo,
   Sink,
+  Module,
+  Source,
+  SinkInput,
+  SourceOutput,
   SubscribeInfo,
   VolumeInfo
 }

@@ -1,0 +1,38 @@
+{
+  "queryParameters": [2, 0],
+  "queryBuffer": "0000000fffffffff0000000000000000000000004c0000001f4c000000024c00000000",
+  "replyBuffer": "000001e6ffffffff0000000000000000000000004c000000024c000000024c00000000744c6f6f706261636b20746f204275696c742d696e20417564696f2053746572656f004c000000184cffffffff4c000000016103020000ac446d0201025500000000000000005500000000000000004e746d6f64756c652d6c6f6f706261636b2e630050746d656469612e726f6c65004c000000097800000009616273747261637400746d6f64756c652d73747265616d2d726573746f72652e6964004c000000257800000025736f757263652d6f75747075742d62792d6d656469612d726f6c653a616273747261637400746d656469612e6e616d65004c0000002278000000224c6f6f706261636b20746f204275696c742d696e20417564696f2053746572656f00746d656469612e69636f6e5f6e616d65004c0000000b780000000b617564696f2d63617264004e30760200010000000100003031316642015074666f726d61742e73616d706c655f666f726d6174004c000000087800000008227331366c65220074666f726d61742e72617465004c00000006780000000634343130300074666f726d61742e6368616e6e656c73004c000000027800000002320074666f726d61742e6368616e6e656c5f6d6170004c0000001978000000192266726f6e742d6c6566742c66726f6e742d726967687422004e",
+  "replyObject": {
+    "index": 0,
+    "name": "Loopback to Built-in Audio Stereo",
+    "moduleIndex": 24,
+    "clientIndex": 4294967295,
+    "sourceIndex": 1,
+    "sampleSpec": { "format": 3, "channels": 2, "rate": 44100 },
+    "channelMap": { "channels": 2, "types": [1, 2] },
+    "bufferLatency": "0n",
+    "sourceLatency": "0n",
+    "resampleMethod": "",
+    "driverName": "module-loopback.c",
+    "properties": [
+      ["media.role", "abstract"],
+      ["module-stream-restore.id", "source-output-by-media-role:abstract"],
+      ["media.name", "Loopback to Built-in Audio Stereo"],
+      ["media.icon_name", "audio-card"]
+    ],
+    "isCorked": false,
+    "channelVolume": { "channels": 2, "volumes": [65536, 65536] },
+    "isMuted": false,
+    "hasVolume": true,
+    "isVolumeWritable": true,
+    "format": {
+      "encoding": 1,
+      "properties": [
+        ["format.sample_format", "\"s16le\""],
+        ["format.rate", "44100"],
+        ["format.channels", "2"],
+        ["format.channel_map", "\"front-left,front-right\""]
+      ]
+    }
+  }
+}
