@@ -27,10 +27,9 @@ import { Authenticate, GetServerInfo, Subscribe } from './commands/server'
 import { GetSinkInput, GetSinkInputList, MoveSinkInput } from './commands/sinkInput'
 import { GetModule, GetModuleList, LoadModule, UnloadModule } from './commands/module'
 import { GetSource, GetSourceList, SetSourceVolume } from './commands/source'
-import { GetSourceOutput, GetSourceOutputList } from './commands/sourceOutput'
-import MoveSourceOutput from './commands/sourceOutput/moveSourceOutput'
+import { GetSourceOutput, GetSourceOutputList, MoveSourceOutput } from './commands/sourceOutput'
 
-interface TCPSocket {
+export interface TCPSocket {
   port: number
   host: string
 }
@@ -38,8 +37,7 @@ interface TCPSocket {
 /**
  * Implements the PulseAudio client.
  *
- * **Basic usage**
- *
+ * @example
  * ```ts
  * import PulseAudio, { Sink } from '@tmigone/pulseaudio'
  *
@@ -112,7 +110,6 @@ export default class PulseAudio extends EventEmitter {
   async connect (): Promise<AuthInfo> {
     return await new Promise<AuthInfo>((resolve, reject) => {
       this.socket = new Socket()
-      this.socket.setTimeout(5_000)
       this.socket.connect(this.address.port, this.address.host)
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       this.socket.on('connect', async () => {
@@ -132,10 +129,6 @@ export default class PulseAudio extends EventEmitter {
       })
       this.socket.on('readable', this.onReadable.bind(this))
       this.socket.on('error', reject)
-      this.socket.on('timeout', () => {
-        console.log(`Socket timed out! Cannot reach PulseAudio server at ${this.address.host}:${this.address.port}`)
-        this.disconnect()
-      })
     })
   }
 
@@ -323,8 +316,7 @@ export default class PulseAudio extends EventEmitter {
   /**
   * Load the specified module with the specified arguments into the running sound server. Prints the numeric index of the module just loaded to STDOUT. You can use it to unload the module later.
    *
-   * **Example**
-   *
+   * @example
    * ```typescript
    * const moduleIndex = await client.loadModule('module-loopback', 'source=alsa_output.dac.stereo-fallback.monitor sink=app-output')
    * console.log(moduleIndex) // moduleIndex: 27
