@@ -278,7 +278,7 @@ export default class PulseAudio extends EventEmitter {
   * Gets details for all source output instances.
   * @category sourceOutput
   */
-  async getSourceOutputList (): Promise<SourceOutput> {
+  async getSourceOutputList (): Promise<SourceOutput[]> {
     const query: PAPacket = GetSourceOutputList.query(this.requestId())
     return await this.sendRequest(query)
   }
@@ -308,7 +308,7 @@ export default class PulseAudio extends EventEmitter {
   * Gets details for all loaded module instances.
   * @category module
   */
-  async getModuleList (): Promise<Module> {
+  async getModuleList (): Promise<Module[]> {
     const query: PAPacket = GetModuleList.query(this.requestId())
     return await this.sendRequest(query)
   }
