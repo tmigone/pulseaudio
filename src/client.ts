@@ -248,7 +248,7 @@ export default class PulseAudio extends EventEmitter {
   * Gets details for all source instances.
   * @category source
   */
-  async getSourceList (): Promise<Source> {
+  async getSourceList (): Promise<Source[]> {
     const query: PAPacket = GetSourceList.query(this.requestId())
     return await this.sendRequest(query)
   }
