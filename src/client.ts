@@ -30,8 +30,14 @@ import { GetSource, GetSourceList, SetSourceVolume } from './commands/source'
 import { GetSourceOutput, GetSourceOutputList, MoveSourceOutput } from './commands/sourceOutput'
 
 export interface TCPSocket {
+  type: 'tcp'
   port: number
   host: string
+}
+
+export interface UnixSocket {
+  type: 'unix'
+  path: string
 }
 
 /**
@@ -62,7 +68,7 @@ export default class PulseAudio extends EventEmitter {
   /**
   * @category public
   */
-  public address: TCPSocket
+  public address: TCPSocket | UnixSocket
   /**
   * @category public
   */
@@ -110,7 +116,7 @@ export default class PulseAudio extends EventEmitter {
   async connect (): Promise<AuthInfo> {
     return await new Promise<AuthInfo>((resolve, reject) => {
       this.socket = new Socket()
-      this.socket.connect(this.address.port, this.address.host)
+      if (this.address.type === 'tcp') { this.socket.connect(this.address.port, this.address.host) } else { this.socket.connect(this.address.path) }
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       this.socket.on('connect', async () => {
         this.connected = true
@@ -118,7 +124,7 @@ export default class PulseAudio extends EventEmitter {
         // Authenticate client
         const reply: AuthInfo = await this.authenticate()
         this.protocol = reply.protocol
-        console.log(`Connected to PulseAudio at ${this.address.host}:${this.address.port} using protocol v${this.protocol}`)
+        if (this.address.type === 'tcp') { console.log(`Connected to PulseAudio at tcp://${this.address.host}:${this.address.port} using protocol v${this.protocol}`) } else { console.log(`Connected to PulseAudio at unix://${this.address.path} using protocol v${this.protocol}`) }
 
         if (reply.protocol < PA_PROTOCOL_MINIMUM_VERSION) {
           this.disconnect()
@@ -553,15 +559,24 @@ export default class PulseAudio extends EventEmitter {
 
   private parseAddress (address: string): void {
     // reference = tcp:pulseaudio:4317
-    if (address.includes('tcp')) {
+    if (address.startsWith('tcp:')) {
       const split: string[] = address.split(':')
       this.address = {
+        type: 'tcp',
         port: parseInt(split[2] ?? '4317'),
         host: split[1]
+      }
+    // reference = unix:/path/to/socket
+    } else if (address.startsWith('unix:')) {
+      const split: string[] = address.split(':')
+      this.address = {
+        type: 'unix',
+        path: split[1]
       }
     } else if (address.includes(':')) {
       const split: string[] = address.split(':')
       this.address = {
+        type: 'tcp',
         port: parseInt(split[1] ?? '4317'),
         host: split[0]
       }
