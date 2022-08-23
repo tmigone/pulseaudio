@@ -25,6 +25,9 @@
     "url": "git+https://github.com/tmigone/pulseaudio.git"
   },
   "author": "Tomás Migone <tomasmigone@gmail.com>",
+  "contributors": [
+    "SpacingBat3 <npm@spacingbat3.anonaddy.com> (https://github.com/SpacingBat3)"
+  ],
   "license": "MIT",
   "keywords": [
     "pulseaudio",
