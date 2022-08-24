@@ -116,7 +116,11 @@ export default class PulseAudio extends EventEmitter {
   async connect (): Promise<AuthInfo> {
     return await new Promise<AuthInfo>((resolve, reject) => {
       this.socket = new Socket()
-      if (this.address.type === 'tcp') { this.socket.connect(this.address.port, this.address.host) } else { this.socket.connect(this.address.path) }
+      if (this.address.type === 'tcp') {
+        this.socket.connect(this.address.port, this.address.host)
+      } else {
+        this.socket.connect(this.address.path)
+      }
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       this.socket.on('connect', async () => {
         this.connected = true
@@ -124,7 +128,11 @@ export default class PulseAudio extends EventEmitter {
         // Authenticate client
         const reply: AuthInfo = await this.authenticate()
         this.protocol = reply.protocol
-        if (this.address.type === 'tcp') { console.log(`Connected to PulseAudio at tcp://${this.address.host}:${this.address.port} using protocol v${this.protocol}`) } else { console.log(`Connected to PulseAudio at unix://${this.address.path} using protocol v${this.protocol}`) }
+        if (this.address.type === 'tcp') {
+          console.log(`Connected to PulseAudio at tcp://${this.address.host}:${this.address.port} using protocol v${this.protocol}`)
+        } else {
+          console.log(`Connected to PulseAudio at unix://${this.address.path} using protocol v${this.protocol}`)
+        }
 
         if (reply.protocol < PA_PROTOCOL_MINIMUM_VERSION) {
           this.disconnect()
