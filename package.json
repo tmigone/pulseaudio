@@ -1,6 +1,6 @@
 {
   "name": "@tmigone/pulseaudio",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A TypeScript based client library for PulseAudio.",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -63,5 +63,8 @@
     "README.md",
     "CHANGELOG.md",
     "LICENSE"
-  ]
+  ],
+  "versionist": {
+    "publishedAt": "2022-08-25T21:03:42.439Z"
+  }
 }
