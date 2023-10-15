@@ -40,7 +40,7 @@ export interface Port {
   name: string
   description: string
   priority: number
-  availabe?: boolean
+  available?: boolean
   availabilityGroup?: string
   type?: number
 }

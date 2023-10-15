@@ -46,7 +46,7 @@ export const parseSinkPacket = (packet: PAPacket, protocol: number): Sink[] => {
         name: tags.nextValue(),
         description: tags.nextValue(),
         priority: tags.nextValue(),
-        availabe: tags.nextValue()
+        available: tags.nextValue()
       }
 
       // PulseAudio >= v14.0
@@ -54,6 +54,8 @@ export const parseSinkPacket = (packet: PAPacket, protocol: number): Sink[] => {
         port.availabilityGroup = tags.nextValue()
         port.type = tags.nextValue()
       }
+
+      sink.ports.push(port)
     }
 
     sink.activePortName = tags.nextValue()

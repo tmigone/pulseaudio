@@ -46,7 +46,7 @@ export const parseSourcePacket = (packet: PAPacket, protocol: number): Source[] 
         name: tags.nextValue(),
         description: tags.nextValue(),
         priority: tags.nextValue(),
-        availabe: tags.nextValue()
+        available: tags.nextValue()
       }
 
       // PulseAudio >= v14.0
@@ -54,6 +54,8 @@ export const parseSourcePacket = (packet: PAPacket, protocol: number): Source[] 
         port.availabilityGroup = tags.nextValue()
         port.type = tags.nextValue()
       }
+
+      source.ports.push(port)
     }
 
     source.activePortName = tags.nextValue()
