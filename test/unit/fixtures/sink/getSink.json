@@ -57,7 +57,14 @@
     "volumeSteps": 65537,
     "cardIndex": 0,
     "numberPorts": 1,
-    "ports": [],
+    "ports": [
+      {
+        "available": 0,
+        "description": "Headphones",
+        "name": "analog-output-headphones",
+        "priority": 9900
+      }
+    ],
     "activePortName": "analog-output-headphones",
     "formats": [{ "encoding": 1, "properties": [] }]
   }
